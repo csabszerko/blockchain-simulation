@@ -1,14 +1,16 @@
 import { createHash } from "crypto";
+import Block from "./block.js";
 
 class Blockchain {
   constructor() {
     this.blocks = [];
-    this.pendingTransactions = [];
+    this.transactionPool = [];
     this.difficulty = 1;
     this.createGenesisBlock();
   }
 
-  addBlock(transactions) {
+  mineBlock() {
+    const transactions = [...this.transactionPool]; // mock behavior: mined blocks included all pending transactions (unrealistic)
     const index = this.blocks.length;
     const timestamp = Date.now();
     const previousHash = index === 0 ? "0" : this.blocks[index - 1].hash;
@@ -36,12 +38,12 @@ class Blockchain {
     );
 
     this.blocks.push(newBlock);
-    this.pendingData = [];
+    this.transactionPool = [];
     return newBlock;
   }
 
   addTransaction(transaction) {
-    this.pendingTransactions.push(transaction);
+    this.transactionPool.push(transaction);
   }
 
   createGenesisBlock() {
@@ -95,54 +97,4 @@ class Blockchain {
   }
 }
 
-class Block {
-  constructor(index, timestamp, transactions, previousHash, hash, nonce) {
-    this.index = index;
-    this.timestamp = timestamp;
-    this.transactions = transactions;
-    this.previousHash = previousHash;
-    this.hash = hash;
-    this.nonce = nonce;
-  }
-}
-
-const bc = new Blockchain();
-
-bc.addBlock([
-  {
-    from: "d",
-    to: "a",
-    amount: "20",
-  },
-  {
-    from: "2",
-    to: "a",
-    amount: "30",
-  },
-]);
-bc.addBlock([
-  {
-    from: "b",
-    to: "a",
-    amount: "20",
-  },
-  {
-    from: "c",
-    to: "a",
-    amount: "30",
-  },
-]);
-
-// bc.blocks[1].transactions = [
-//     {
-//         from: 'a',
-//         to: 'b',
-//         amount: '10000'
-//     }
-// ];
-// bc.blocks[2].previousHash = bc.blocks[1].hash;
-
-console.log(
-  "blocks on the blockchain: \n" + JSON.stringify(bc.blocks, null, 3)
-);
-console.log(bc.validateBlockchain());
+export default Blockchain;
