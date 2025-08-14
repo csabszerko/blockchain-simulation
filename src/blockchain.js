@@ -10,23 +10,19 @@ class Blockchain {
   }
 
   mineBlock() {
-    const transactions = [...this.transactionPool]; // mock behavior: mined blocks included all pending transactions (unrealistic)
     const index = this.blocks.length;
     const timestamp = Date.now();
+    const transactions = [...this.transactionPool].filter(
+      (transaction) => transaction.when <= timestamp // very basic validation for transactions (they cant be from the future)
+    ); // mined blocks include all pending transactions (unrealistic)
     const previousHash = index === 0 ? "0" : this.blocks[index - 1].hash;
-    let hash;
-    let nonce = 0;
-    while (true) {
-      hash = this.calculateHash(
-        index,
-        timestamp,
-        transactions,
-        previousHash,
-        nonce
-      );
-      if (hash.startsWith("0".repeat(this.difficulty))) break;
-      nonce++;
-    }
+
+    const { hash, nonce } = this.calculateProofOfWork(
+      index,
+      timestamp,
+      transactions,
+      previousHash
+    );
 
     const newBlock = new Block(
       index,
@@ -42,8 +38,33 @@ class Blockchain {
     return newBlock;
   }
 
+  calculateProofOfWork(index, timestamp, transactions, previousHash) {
+    // proof of work
+    let hash;
+    let nonce = 0;
+    while (true) {
+      hash = this.calculateHash(
+        index,
+        timestamp,
+        transactions,
+        previousHash,
+        nonce
+      );
+      if (hash.startsWith("0".repeat(this.difficulty))) break;
+      nonce++;
+    }
+    return { hash, nonce };
+  }
+
   addTransaction(transaction) {
-    this.transactionPool.push(transaction);
+    if (transaction.isValid()) {
+      this.transactionPool.push(transaction);
+    } else
+      console.log(
+        "Transaction was dropped because it is invalid: \n" +
+          JSON.stringify(transaction, null, 3) +
+          "\n"
+      );
   }
 
   createGenesisBlock() {
@@ -61,39 +82,36 @@ class Blockchain {
   }
 
   calculateHash(index, timestamp, transactions, previousHash, nonce) {
-    return createHash("sha256")
+    return createHash("SHA256")
       .update(
         index + timestamp + JSON.stringify(transactions) + previousHash + nonce
       )
       .digest("hex"); // hash contents as strings
   }
 
-  validateBlockchain() {
+  isBlockchainValid() {
     for (let i = 1; i < this.blocks.length; i++) {
       const block = this.blocks[i];
-      if (block.previousHash != this.blocks[i - 1].hash) {
-        return (
-          "blockchain is invalid, the block hashes are incorrectly linked starting from block index " +
-          block.index
-        );
-      } else if (
-        block.hash !=
-        this.calculateHash(
-          block.index,
-          block.timestamp,
-          block.transactions,
-          block.previousHash,
-          block.nonce
-        )
-      ) {
-        return (
-          "blockchain is invalid, block index " +
-          block.index +
-          " is incorrectly hashed"
-        );
+      try {
+        if (
+          block.previousHash != this.blocks[i - 1].hash ||
+          !block.hash.startsWith("0".repeat(this.difficulty)) ||
+          block.hash !=
+            this.calculateHash(
+              block.index,
+              block.timestamp,
+              block.transactions,
+              block.previousHash,
+              block.nonce
+            )
+        ) {
+          return false;
+        }
+      } catch {
+        return false;
       }
     }
-    return "blockchain is valid";
+    return true;
   }
 }
 

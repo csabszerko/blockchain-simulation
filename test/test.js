@@ -1,69 +1,65 @@
 import Blockchain from "../src/blockchain.js";
 import Block from "../src/block.js";
 import Transaction from "../src/transaction.js";
+import Wallet from "../src/Wallet.js";
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const bc = new Blockchain();
 
-bc.addTransaction(
-  new Transaction({
-    from: "a",
-    to: "b",
-    amount: 10,
-    when: Date.now(),
-  })
-);
+const user1 = new Wallet();
+const user2 = new Wallet();
+const user3 = new Wallet();
 
-bc.addTransaction(
-  new Transaction({
-    from: "a",
-    to: "d",
-    amount: 101,
-    when: Date.now(),
-  })
-);
+const t1 = new Transaction({
+  from: user1.publicKey,
+  to: user2.publicKey,
+  amount: 10,
+  when: Date.now(),
+});
 
+user1.signTransaction(t1);
+bc.addTransaction(t1);
+
+const t2 = new Transaction({
+  from: user1.publicKey,
+  to: user3.publicKey,
+  amount: 10,
+  when: Date.now(),
+});
+
+user1.signTransaction(t2);
+bc.addTransaction(t2);
 bc.mineBlock();
 
-bc.addTransaction(
-  new Transaction({
-    from: "d",
-    to: "b",
-    amount: 3,
-    when: Date.now(),
-  })
+// this case is to completely remine the last block with my own data
+const t3 = new Transaction({
+  from: user3.publicKey,
+  to: user1.publicKey,
+  amount: 10000,
+  when: 1,
+});
+
+user3.signTransaction(t3);
+
+const tamperedBlock = bc.blocks[1];
+
+tamperedBlock.transactions = t3;
+tamperedBlock.previousHash = bc.blocks[0].hash;
+
+const { hash: tamperedHash, nonce: tamperedNonce } = bc.calculateProofOfWork(
+  tamperedBlock.index,
+  tamperedBlock.timestamp,
+  tamperedBlock.transactions,
+  tamperedBlock.previousHash
 );
-
-bc.addTransaction(
-  new Transaction({
-    from: "b",
-    to: "d",
-    amount: 130,
-    when: Date.now(),
-  })
-);
-
-bc.addTransaction(
-  new Transaction({
-    from: "c",
-    to: "b",
-    amount: 10,
-    when: Date.now(),
-  })
-);
-
-bc.mineBlock();
-
-bc.blocks[1].transactions = [
-  {
-    from: "a",
-    to: "b",
-    amount: "10000",
-  },
-];
-bc.blocks[2].previousHash = bc.blocks[1].hash;
+tamperedBlock.hash = tamperedHash;
+tamperedBlock.nonce = tamperedNonce;
 
 console.log(
-  "blocks on the blockchain: \n" + JSON.stringify(bc.blocks, null, 3)
+  "Blocks on the blockchain: \n" + JSON.stringify(bc.blocks, null, 5)
 );
 
-console.log(bc.validateBlockchain());
+console.log(
+  `The blockchain is ${bc.isBlockchainValid() ? "valid" : "invalid"}`
+);
