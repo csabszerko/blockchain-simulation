@@ -24,7 +24,7 @@ bc.addTransaction(t1);
 const t2 = new Transaction({
   from: user1.publicKey,
   to: user3.publicKey,
-  amount: 10,
+  amount: 20,
   when: Date.now(),
 });
 
@@ -32,7 +32,7 @@ user1.signTransaction(t2);
 bc.addTransaction(t2);
 bc.mineBlock();
 
-// this case is to completely remine the last block with my own data
+// this case is to completely remine the last block with my own data -> fixed by the blocks array being private and unreferencable
 const t3 = new Transaction({
   from: user3.publicKey,
   to: user1.publicKey,
@@ -59,6 +59,8 @@ tamperedBlock.nonce = tamperedNonce;
 console.log(
   "Blocks on the blockchain: \n" + JSON.stringify(bc.blocks, null, 5)
 );
+
+bc.printBlocks();
 
 console.log(
   `The blockchain is ${bc.isBlockchainValid() ? "valid" : "invalid"}`

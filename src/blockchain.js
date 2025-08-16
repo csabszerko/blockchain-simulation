@@ -2,20 +2,21 @@ import { createHash } from "crypto";
 import Block from "./block.js";
 
 class Blockchain {
+  #blocks;
   constructor() {
-    this.blocks = [];
+    this.#blocks = [];
     this.transactionPool = [];
     this.difficulty = 1;
     this.createGenesisBlock();
   }
 
   mineBlock() {
-    const index = this.blocks.length;
+    const index = this.#blocks.length;
     const timestamp = Date.now();
     const transactions = [...this.transactionPool].filter(
       (transaction) => transaction.when <= timestamp // very basic validation for transactions (they cant be from the future)
     ); // mined blocks include all pending transactions (unrealistic)
-    const previousHash = index === 0 ? "0" : this.blocks[index - 1].hash;
+    const previousHash = index === 0 ? "0" : this.#blocks[index - 1].hash;
 
     const { hash, nonce } = this.calculateProofOfWork(
       index,
@@ -33,7 +34,7 @@ class Blockchain {
       nonce
     );
 
-    this.blocks.push(newBlock);
+    this.#blocks.push(newBlock);
     this.transactionPool = [];
     return newBlock;
   }
@@ -77,7 +78,7 @@ class Blockchain {
       "genesis nonce"
     );
 
-    this.blocks.push(genesisBlock);
+    this.#blocks.push(genesisBlock);
     return genesisBlock;
   }
 
@@ -90,11 +91,11 @@ class Blockchain {
   }
 
   isBlockchainValid() {
-    for (let i = 1; i < this.blocks.length; i++) {
-      const block = this.blocks[i];
+    for (let i = 1; i < this.#blocks.length; i++) {
+      const block = this.#blocks[i];
       try {
         if (
-          block.previousHash != this.blocks[i - 1].hash ||
+          block.previousHash != this.#blocks[i - 1].hash ||
           !block.hash.startsWith("0".repeat(this.difficulty)) ||
           block.hash !=
             this.calculateHash(
@@ -112,6 +113,18 @@ class Blockchain {
       }
     }
     return true;
+  }
+
+  // this is only to make it easier to tamper with for testing
+  get blocks() {
+    return this.#blocks;
+  }
+
+  printBlocks() {
+    console.log(
+      "Blocks on the blockchain (official): " +
+        JSON.stringify(this.#blocks, null, 5)
+    );
   }
 }
 
