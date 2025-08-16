@@ -1,51 +1,51 @@
 import Blockchain from "../src/blockchain.js";
-import Block from "../src/block.js";
-import Transaction from "../src/transaction.js";
 import Wallet from "../src/Wallet.js";
-
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const bc = new Blockchain();
 
-const user1 = new Wallet();
-const user2 = new Wallet();
-const user3 = new Wallet();
+// start of user creation
 
-const t1 = new Transaction({
-  from: user1.publicKey,
-  to: user2.publicKey,
-  amount: 10,
-  when: Date.now(),
-});
+const { publicKey: user1Pk, privateKey: user1Sk } = Wallet.initializeKeyPair();
+const user1 = new Wallet(user1Pk, user1Sk);
 
-user1.signTransaction(t1);
+const { publicKey: user2Pk, privateKey: user2Sk } = Wallet.initializeKeyPair();
+const user2 = new Wallet(user2Pk, user2Sk);
+
+const { publicKey: user3Pk, privateKey: user3Sk } = Wallet.initializeKeyPair();
+const user3 = new Wallet(user3Pk, user3Sk);
+
+console.log(
+  "Wallets created: \n" +
+    user1.publicKey.substr(100, 30) +
+    "... \n" +
+    user2.publicKey.substr(100, 30) +
+    "... \n" +
+    user3.publicKey.substr(100, 30) +
+    "... \n"
+);
+
+// end of user creation
+
+// start of transaction initialization
+const t1 = user1.createTransaction({ to: user2.publicKey, amount: 10 });
 bc.addTransaction(t1);
 
-const t2 = new Transaction({
-  from: user1.publicKey,
-  to: user3.publicKey,
-  amount: 20,
-  when: Date.now(),
-});
-
-user1.signTransaction(t2);
+const t2 = user2.createTransaction({ to: user3.publicKey, amount: 12 });
 bc.addTransaction(t2);
+
 bc.mineBlock();
 
+// end of transaction initialization
+
 // this case is to completely remine the last block with my own data -> fixed by the blocks array being private and unreferencable
-const t3 = new Transaction({
-  from: user3.publicKey,
-  to: user1.publicKey,
-  amount: 10000,
-  when: 1,
-});
 
-user3.signTransaction(t3);
+const t3 = user3.createTransaction({ to: user1.publicKey, amount: 1000 });
 
-const tamperedBlock = bc.blocks[1];
+const tamperedBlocks = bc.blocks;
+const tamperedBlock = tamperedBlocks[1];
 
 tamperedBlock.transactions = t3;
-tamperedBlock.previousHash = bc.blocks[0].hash;
+tamperedBlock.previousHash = tamperedBlocks[0].hash;
 
 const { hash: tamperedHash, nonce: tamperedNonce } = bc.calculateProofOfWork(
   tamperedBlock.index,
@@ -57,7 +57,8 @@ tamperedBlock.hash = tamperedHash;
 tamperedBlock.nonce = tamperedNonce;
 
 console.log(
-  "Blocks on the blockchain: \n" + JSON.stringify(bc.blocks, null, 5)
+  "Blocks on the forged blockchain: \n" +
+    JSON.stringify(tamperedBlocks, null, 5)
 );
 
 bc.printBlocks();

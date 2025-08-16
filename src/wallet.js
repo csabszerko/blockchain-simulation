@@ -1,10 +1,16 @@
-import { generateKeyPairSync, sign } from "crypto";
+import { generateKeyPairSync, sign, createHash } from "crypto";
+import Transaction from "./transaction.js";
 
 class Wallet {
   #privateKey; // ES2020 syntax for private properties
 
-  constructor() {
-    const { publicKey, privateKey } = generateKeyPairSync("rsa", {
+  constructor(publicKey, privateKey) {
+    this.publicKey = publicKey;
+    this.#privateKey = privateKey;
+  }
+
+  static initializeKeyPair() {
+    return generateKeyPairSync("rsa", {
       publicKeyEncoding: {
         type: "spki",
         format: "pem",
@@ -15,21 +21,45 @@ class Wallet {
       },
       modulusLength: 2048,
     });
-
-    this.#privateKey = privateKey;
-    this.publicKey = publicKey;
   }
 
-  signTransaction(transaction) {
+  createTransaction({ to, amount }) {
+    const transaction = new Transaction({
+      from: this.publicKey,
+      to: to,
+      amount: amount,
+      timestamp: Date.now(),
+    });
+    this.#signTransaction(transaction);
+    transaction.finalizeTxId();
+    return transaction;
+  }
+
+  #signTransaction(transaction) {
+    const transactionHash = createHash("SHA256")
+      .update(
+        JSON.stringify({
+          from: transaction.from,
+          to: transaction.to,
+          amount: transaction.amount,
+          timestamp: transaction.timestamp,
+        })
+      )
+      .digest("hex"); // hash contents as strings
+
     // only if this user is the sender
     if (transaction.from === this.publicKey) {
       const signature = sign(
         "SHA256",
-        transaction.hash,
+        transactionHash,
         this.#privateKey
       ).toString("base64"); // for better readability
       transaction.signature = signature;
     }
+  }
+
+  toString() {
+    return this.publicKey + this.#privateKey;
   }
 }
 

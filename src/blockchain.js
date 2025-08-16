@@ -3,18 +3,20 @@ import Block from "./block.js";
 
 class Blockchain {
   #blocks;
+  #transactionPool;
+  #difficulty;
   constructor() {
     this.#blocks = [];
-    this.transactionPool = [];
-    this.difficulty = 1;
+    this.#transactionPool = [];
+    this.#difficulty = 1;
     this.createGenesisBlock();
   }
 
   mineBlock() {
     const index = this.#blocks.length;
     const timestamp = Date.now();
-    const transactions = [...this.transactionPool].filter(
-      (transaction) => transaction.when <= timestamp // very basic validation for transactions (they cant be from the future)
+    const transactions = [...this.#transactionPool].filter(
+      (transaction) => transaction.timestamp <= timestamp // very basic validation for transactions (they cant be from the future)
     ); // mined blocks include all pending transactions (unrealistic)
     const previousHash = index === 0 ? "0" : this.#blocks[index - 1].hash;
 
@@ -35,7 +37,7 @@ class Blockchain {
     );
 
     this.#blocks.push(newBlock);
-    this.transactionPool = [];
+    this.#transactionPool = [];
     return newBlock;
   }
 
@@ -51,7 +53,7 @@ class Blockchain {
         previousHash,
         nonce
       );
-      if (hash.startsWith("0".repeat(this.difficulty))) break;
+      if (hash.startsWith("0".repeat(this.#difficulty))) break;
       nonce++;
     }
     return { hash, nonce };
@@ -59,7 +61,7 @@ class Blockchain {
 
   addTransaction(transaction) {
     if (transaction.isValid()) {
-      this.transactionPool.push(transaction);
+      this.#transactionPool.push(transaction);
     } else
       console.log(
         "Transaction was dropped because it is invalid: \n" +
@@ -85,7 +87,13 @@ class Blockchain {
   calculateHash(index, timestamp, transactions, previousHash, nonce) {
     return createHash("SHA256")
       .update(
-        index + timestamp + JSON.stringify(transactions) + previousHash + nonce
+        JSON.stringify({
+          index: index,
+          timestamp: timestamp,
+          transactions: JSON.stringify(transactions),
+          previousHash: previousHash,
+          nonce: nonce,
+        })
       )
       .digest("hex"); // hash contents as strings
   }
@@ -96,7 +104,7 @@ class Blockchain {
       try {
         if (
           block.previousHash != this.#blocks[i - 1].hash ||
-          !block.hash.startsWith("0".repeat(this.difficulty)) ||
+          !block.hash.startsWith("0".repeat(this.#difficulty)) ||
           block.hash !=
             this.calculateHash(
               block.index,
@@ -117,12 +125,12 @@ class Blockchain {
 
   // this is only to make it easier to tamper with for testing
   get blocks() {
-    return this.#blocks;
+    return JSON.parse(JSON.stringify(this.#blocks)); // deep copy
   }
 
   printBlocks() {
     console.log(
-      "Blocks on the blockchain (official): " +
+      "Blocks on the original blockchain: \n" +
         JSON.stringify(this.#blocks, null, 5)
     );
   }
