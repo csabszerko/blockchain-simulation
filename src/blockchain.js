@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash, verify } from "crypto";
 import Block from "./block.js";
 
 class Blockchain {
@@ -15,8 +15,15 @@ class Blockchain {
   }
 
   // testing purposes only
+  set blocks(blocks) {
+    this.#blocks = blocks;
+  }
   get blocks() {
     return JSON.parse(JSON.stringify(this.#blocks)); // deep copy
+  }
+
+  get utxos() {
+    return this.#utxos;
   }
 
   set utxos(utxos) {
@@ -98,18 +105,79 @@ class Blockchain {
   }
 
   addTransaction(transaction) {
-    this.#transactionPool.push(transaction);
-    // console.log(
-    //   "Transaction was dropped because it is invalid: \n" +
-    //     JSON.stringify(transaction, null, 3) +
-    //     "\n"
-    // );
+    if (this.validateTransaction(transaction)) {
+      for (const input of transaction.inputs) {
+        delete this.#utxos[input["txid:vout"]]; // delete the spent utxos
+      }
+
+      for (const [index, output] of transaction.outputs.entries()) {
+        this.#utxos[transaction.txid + ":" + index] = {
+          // add the new utxos
+          address: output.address,
+          amount: output.amount,
+        };
+      }
+      this.#transactionPool.push(transaction);
+    }
   }
 
   validateTransaction(transaction) {
     // inputs reference valid utxos
-    // the referenced utxos have the correct amount and address
     // all signatures blank -> check the hashes for the inputs -> verify the sender signed it
+
+    const txidHash = createHash("SHA256")
+      .update(
+        JSON.stringify({
+          inputs: transaction.inputs,
+          outputs: transaction.outputs,
+        })
+      )
+      .digest("hex");
+
+    if (transaction.txid !== txidHash)
+      throw new Error("Transaction invalid: incorrect transaction id");
+
+    const blankedSignatureInputs = transaction.inputs.map((input) => ({
+      ...input,
+      signature: null,
+    }));
+
+    for (const input of transaction.inputs) {
+      const utxoTxidVout = input["txid:vout"];
+      const referencedUtxo = this.#utxos[utxoTxidVout];
+
+      if (!referencedUtxo) {
+        throw new Error(
+          "Transaction invalid: transaction inputs contain utxos that can't be found"
+        );
+      }
+
+      const transactionHash = createHash("SHA256")
+        .update(
+          JSON.stringify({
+            inputs: blankedSignatureInputs,
+            outputs: transaction.outputs,
+            "txid:vout": utxoTxidVout,
+            address: referencedUtxo.address,
+            amount: referencedUtxo.amount,
+          })
+        )
+        .digest("hex");
+
+      if (
+        !verify(
+          "SHA256",
+          transactionHash,
+          referencedUtxo.address, // pkey of the sender
+          Buffer.from(input.signature, "base64")
+        )
+      )
+        throw new Error(
+          "Transaction invalid: transaction inputs contain incorrect signatures"
+        );
+    }
+
+    return true;
   }
 
   getUtxosForPkey(publicKey) {
@@ -120,27 +188,30 @@ class Blockchain {
     );
   }
 
-  isBlockchainValid() {
+  validateBlockchain() {
     for (let i = 1; i < this.#blocks.length; i++) {
       const block = this.#blocks[i];
-      try {
-        if (
-          block.previousHash != this.#blocks[i - 1].hash ||
-          !block.hash.startsWith("0".repeat(this.#difficulty)) ||
-          block.hash !=
-            this.calculateHash(
-              block.index,
-              block.timestamp,
-              block.transactions,
-              block.previousHash,
-              block.nonce
-            )
-        ) {
-          return false;
-        }
-      } catch {
-        return false;
-      }
+      if (block.previousHash != this.#blocks[i - 1].hash)
+        throw new Error(
+          "Blockchain invalid: block hashes are incorrectly linked on the blockchain"
+        );
+
+      if (!block.hash.startsWith("0".repeat(this.#difficulty)))
+        throw new Error(
+          "Blockchain invalid: proof of work has not been computed correctly"
+        );
+
+      if (
+        block.hash !=
+        this.calculateHash(
+          block.index,
+          block.timestamp,
+          block.transactions,
+          block.previousHash,
+          block.nonce
+        )
+      )
+        throw new Error("Blockchain invalid: block hashes are incorrect");
     }
     return true;
   }

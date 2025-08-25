@@ -59,7 +59,7 @@ class Wallet {
     }
 
     if (fundsToSpend < amount) {
-      throw new Error("Insufficient funds in wallet");
+      throw new Error("Transaction failed: insufficient funds in wallet");
     }
 
     // always add recipient output
@@ -83,6 +83,10 @@ class Wallet {
 
   #signTransactionInputs(transaction) {
     // at this point all of the signatures are blank in the inputs
+    const blankedSignatureInputs = transaction.inputs.map((input) => ({
+      ...input,
+      signature: null,
+    }));
 
     for (const input of transaction.inputs) {
       const utxoTxidVout = input["txid:vout"];
@@ -91,7 +95,7 @@ class Wallet {
       const transactionHash = createHash("SHA256")
         .update(
           JSON.stringify({
-            inputs: transaction.inputs,
+            inputs: blankedSignatureInputs,
             outputs: transaction.outputs,
             "txid:vout": utxoTxidVout,
             address: referencedUtxo.address,
