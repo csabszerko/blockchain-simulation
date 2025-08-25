@@ -5,19 +5,43 @@ class Blockchain {
   #blocks;
   #transactionPool;
   #difficulty;
+  #utxos;
   constructor() {
     this.#blocks = [];
     this.#transactionPool = [];
+    this.#utxos = {};
     this.#difficulty = 1;
     this.createGenesisBlock();
   }
 
-  mineBlock() {
+  // testing purposes only
+  get blocks() {
+    return JSON.parse(JSON.stringify(this.#blocks)); // deep copy
+  }
+
+  set utxos(utxos) {
+    this.#utxos = utxos;
+  }
+  // testing purposes only
+
+  createGenesisBlock() {
+    const genesisBlock = new Block(
+      0,
+      Date.now(),
+      "this is the genesis block",
+      "no previous hash",
+      "genesis hash",
+      "genesis nonce"
+    );
+
+    this.#blocks.push(genesisBlock);
+    return genesisBlock;
+  }
+
+  mineBlock(transactions = null) {
     const index = this.#blocks.length;
     const timestamp = Date.now();
-    const transactions = [...this.#transactionPool].filter(
-      (transaction) => transaction.timestamp <= timestamp // very basic validation for transactions (they cant be from the future)
-    ); // mined blocks include all pending transactions (unrealistic)
+    transactions ??= this.#transactionPool; // mined blocks include all pending transactions by default (unrealistic)
     const previousHash = index === 0 ? "0" : this.#blocks[index - 1].hash;
 
     const { hash, nonce } = this.calculateProofOfWork(
@@ -59,31 +83,6 @@ class Blockchain {
     return { hash, nonce };
   }
 
-  addTransaction(transaction) {
-    if (transaction.isValid()) {
-      this.#transactionPool.push(transaction);
-    } else
-      console.log(
-        "Transaction was dropped because it is invalid: \n" +
-          JSON.stringify(transaction, null, 3) +
-          "\n"
-      );
-  }
-
-  createGenesisBlock() {
-    const genesisBlock = new Block(
-      0,
-      Date.now(),
-      "this is the genesis block",
-      "no previous hash",
-      "genesis hash",
-      "genesis nonce"
-    );
-
-    this.#blocks.push(genesisBlock);
-    return genesisBlock;
-  }
-
   calculateHash(index, timestamp, transactions, previousHash, nonce) {
     return createHash("SHA256")
       .update(
@@ -96,6 +95,29 @@ class Blockchain {
         })
       )
       .digest("hex"); // hash contents as strings
+  }
+
+  addTransaction(transaction) {
+    this.#transactionPool.push(transaction);
+    // console.log(
+    //   "Transaction was dropped because it is invalid: \n" +
+    //     JSON.stringify(transaction, null, 3) +
+    //     "\n"
+    // );
+  }
+
+  validateTransaction(transaction) {
+    // inputs reference valid utxos
+    // the referenced utxos have the correct amount and address
+    // all signatures blank -> check the hashes for the inputs -> verify the sender signed it
+  }
+
+  getUtxosForPkey(publicKey) {
+    return Object.fromEntries(
+      Object.entries(this.#utxos).filter(
+        ([, utxo]) => utxo.address === publicKey
+      )
+    );
   }
 
   isBlockchainValid() {
@@ -121,11 +143,6 @@ class Blockchain {
       }
     }
     return true;
-  }
-
-  // this is only to make it easier to tamper with for testing
-  get blocks() {
-    return JSON.parse(JSON.stringify(this.#blocks)); // deep copy
   }
 
   printBlocks() {

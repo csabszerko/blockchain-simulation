@@ -1,64 +1,21 @@
-import { createHash, verify } from "crypto";
+import { createHash } from "crypto";
 
 class Transaction {
-  constructor({ from, to, amount, timestamp }) {
-    this.txId = null;
-    this.from = from;
-    this.to = to;
-    this.amount = amount;
-    this.timestamp = timestamp;
-    this.signature = null;
+  constructor({ inputs, outputs }) {
+    this.txid = null;
+    this.inputs = inputs;
+    this.outputs = outputs;
   }
 
-  finalizeTxId() {
-    this.txId = createHash("SHA256")
+  finalizeTxid() {
+    this.txid = createHash("SHA256")
       .update(
         JSON.stringify({
-          from: this.from,
-          to: this.to,
-          amount: this.amount,
-          timestamp: this.timestamp,
-          signature: this.signature,
+          inputs: this.inputs,
+          outputs: this.outputs,
         })
       )
       .digest("hex");
-  }
-
-  isValid() {
-    try {
-      const transactionHash = createHash("SHA256")
-        .update(
-          JSON.stringify({
-            from: this.from,
-            to: this.to,
-            amount: this.amount,
-            timestamp: this.timestamp,
-          })
-        )
-        .digest("hex");
-
-      return verify(
-        "SHA256",
-        transactionHash,
-        this.from,
-        Buffer.from(this.signature, "base64")
-      );
-    } catch {
-      return false;
-    }
-  }
-
-  toJSON() {
-    // for easier readability
-    return {
-      ...this,
-      txId: this.txId ? this.txId.substr(0, 30) + "..." : this.txId,
-      from: this.from.substr(100, 30) + "...",
-      to: this.to.substr(100, 30) + "...",
-      signature: this.signature
-        ? this.signature.substr(0, 30) + "..."
-        : this.signature,
-    };
   }
 }
 
