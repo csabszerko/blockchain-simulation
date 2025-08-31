@@ -1,4 +1,4 @@
-# Blockchain simulation in javascript
+# blockchain simulation in javascript
 
 > ## about
 >
