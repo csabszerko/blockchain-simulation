@@ -1,5 +1,5 @@
-import { generateKeyPairSync, sign, createHash } from "crypto";
 import Transaction from "./transaction.js";
+import forge from "node-forge";
 
 class Wallet {
   #privateKey; // ES2020 syntax for private properties
@@ -12,17 +12,11 @@ class Wallet {
   }
 
   static initializeKeyPair() {
-    return generateKeyPairSync("rsa", {
-      publicKeyEncoding: {
-        type: "spki",
-        format: "pem",
-      },
-      privateKeyEncoding: {
-        type: "pkcs8",
-        format: "pem",
-      },
-      modulusLength: 2048,
-    });
+    const { publicKey, privateKey } = forge.pki.ed25519.generateKeyPair();
+    return {
+      publicKey: publicKey.toString("hex"),
+      privateKey: privateKey.toString("hex"),
+    };
   }
 
   connectToNode(node) {
@@ -92,7 +86,8 @@ class Wallet {
       const utxoTxidVout = input["txid:vout"];
       const referencedUtxo = this.utxos[utxoTxidVout];
 
-      const transactionHash = createHash("SHA256")
+      const transactionHash = forge.md.sha256
+        .create()
         .update(
           JSON.stringify({
             inputs: blankedSignatureInputs,
@@ -102,13 +97,17 @@ class Wallet {
             amount: referencedUtxo.amount,
           })
         )
-        .digest("hex");
+        .digest()
+        .toHex();
 
-      const signature = sign(
-        "SHA256",
-        transactionHash,
-        this.#privateKey
-      ).toString("base64"); // for better readability
+      const signature = forge.pki.ed25519
+        .sign({
+          // also accepts a forge ByteBuffer or Uint8Array
+          message: Buffer.from(transactionHash, "hex"),
+          privateKey: Buffer.from(this.#privateKey, "hex"),
+        })
+        .toString("hex");
+
       input.signature = signature;
     }
   }

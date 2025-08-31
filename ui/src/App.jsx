@@ -1,15 +1,12 @@
-import { useState } from 'react'
-import './App.css'
+// import './App.css'
+import { useBlockchainContext } from '../context/BlockchainContext.jsx';
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>  
-      <h1>blockchain simulation</h1>
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+  const bc = useBlockchainContext();
+  return  (
+    <>
+      <div>blocks on the blockchain</div>
+      <pre>{JSON.stringify(bc.blocks, null, 5)}</pre>
     </>
   )
 }

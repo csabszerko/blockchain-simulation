@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import forge from "node-forge";
 
 class Transaction {
   constructor({ inputs, outputs }) {
@@ -8,14 +8,16 @@ class Transaction {
   }
 
   finalizeTxid() {
-    this.txid = createHash("SHA256")
+    this.txid = forge.md.sha256
+      .create()
       .update(
         JSON.stringify({
           inputs: this.inputs,
           outputs: this.outputs,
         })
       )
-      .digest("hex");
+      .digest()
+      .toHex();
   }
 }
 

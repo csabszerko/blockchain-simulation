@@ -1,5 +1,5 @@
-import { createHash, verify } from "crypto";
 import Block from "./block.js";
+import forge from "node-forge";
 
 class Blockchain {
   #blocks;
@@ -91,7 +91,8 @@ class Blockchain {
   }
 
   calculateHash(index, timestamp, transactions, previousHash, nonce) {
-    return createHash("SHA256")
+    return forge.md.sha256
+      .create()
       .update(
         JSON.stringify({
           index: index,
@@ -101,7 +102,8 @@ class Blockchain {
           nonce: nonce,
         })
       )
-      .digest("hex"); // hash contents as strings
+      .digest()
+      .toHex();
   }
 
   addTransaction(transaction) {
@@ -125,17 +127,21 @@ class Blockchain {
     // inputs reference valid utxos
     // all signatures blank -> check the hashes for the inputs -> verify the sender signed it
 
-    const txidHash = createHash("SHA256")
+    const txidHash = forge.md.sha256
+      .create()
       .update(
         JSON.stringify({
           inputs: transaction.inputs,
           outputs: transaction.outputs,
         })
       )
-      .digest("hex");
+      .digest()
+      .toHex();
 
-    if (transaction.txid !== txidHash)
+    if (transaction.txid !== txidHash) {
+      console.log(transaction.txid, txidHash);
       throw new Error("Transaction invalid: incorrect transaction id");
+    }
 
     const blankedSignatureInputs = transaction.inputs.map((input) => ({
       ...input,
@@ -152,7 +158,8 @@ class Blockchain {
         );
       }
 
-      const transactionHash = createHash("SHA256")
+      const transactionHash = forge.md.sha256
+        .create()
         .update(
           JSON.stringify({
             inputs: blankedSignatureInputs,
@@ -162,15 +169,15 @@ class Blockchain {
             amount: referencedUtxo.amount,
           })
         )
-        .digest("hex");
+        .digest()
+        .toHex();
 
       if (
-        !verify(
-          "SHA256",
-          transactionHash,
-          referencedUtxo.address, // pkey of the sender
-          Buffer.from(input.signature, "base64")
-        )
+        !forge.pki.ed25519.verify({
+          message: Buffer.from(transactionHash, "hex"),
+          signature: Buffer.from(input.signature, "hex"),
+          publicKey: Buffer.from(referencedUtxo.address, "hex"),
+        })
       )
         throw new Error(
           "Transaction invalid: transaction inputs contain incorrect signatures"

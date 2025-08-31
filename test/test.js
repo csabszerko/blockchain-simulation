@@ -1,6 +1,6 @@
-import Blockchain from "../src/blockchain.js";
-import Transaction from "../src/transaction.js";
-import Wallet from "../src/wallet.js";
+import Blockchain from "../core/blockchain.js";
+import Transaction from "../core/transaction.js";
+import Wallet from "../core/wallet.js";
 
 // error message formatting
 process.on("uncaughtException", (err) => {
@@ -140,9 +140,9 @@ bc.mineBlock();
 //     JSON.stringify(tamperedBlocks, null, 5)
 // );
 
-bc.printBlocks();
-
 // bc.blocks = tamperedBlocks;
+
+bc.printBlocks();
 
 console.log(
   bc.validateBlockchain()
