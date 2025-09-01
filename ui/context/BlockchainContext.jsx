@@ -22,16 +22,6 @@ export const BlockchainContextProvider = ({ children }) => {
       }
       return value;
     },
-    set(target, prop, value) {
-      // intercept the setter property (which are not like usual methods)
-      if (prop === "blocks") {
-        target.blocks = value;
-        setBlocks(target.blocks); // update react state
-        return true;
-      }
-      target[prop] = value;
-      return true;
-    },
   });
   return (
     <BlockchainContext.Provider value={proxiedBlockchain}>

@@ -1,24 +1,30 @@
 import { useBlockchainContext } from "../context/BlockchainContext.jsx";
 import { v4 as uuidv4 } from "uuid";
-import { useRef } from "react";
-import NavBar from "../components/navbar/NavBar.jsx";
+import { useState, useRef, useEffect } from "react";
+
 import "./App.css";
+import Wallets from "../components/wallets/Wallets.jsx";
+import Transactions from "../components/transactions/Transactions.jsx";
+import NavBar from "../components/navbar/NavBar.jsx";
+import Blocks from "../components/Blocks/Blocks.jsx";
+import { DEFAULT_WALLETS } from "../../constants/defaultData.js";
 
 function App() {
   const proxiedBlockchain = useBlockchainContext();
+  const [wallets, setWallets] = useState(() => [...DEFAULT_WALLETS]);
+
+  useEffect(() => {
+    wallets.forEach((wallet) => wallet.connectToNode(proxiedBlockchain));
+  }, [proxiedBlockchain, wallets]);
   const nodeId = useRef(uuidv4());
   return (
     <>
       <NavBar uuid={nodeId.current}></NavBar>
-      <div>blocks on the blockchain:</div>
-      <pre>{JSON.stringify(proxiedBlockchain.blocks, null, 5)}</pre>
-      <button
-        onClick={() => {
-          proxiedBlockchain.blocks = [...proxiedBlockchain.blocks, "new block"];
-        }}
-      >
-        add new block
-      </button>
+      <div className="grid">
+        <Wallets wallets={wallets} setWallets={setWallets} />
+        <Transactions wallets={wallets} />
+        <Blocks />
+      </div>
     </>
   );
 }
