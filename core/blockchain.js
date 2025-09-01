@@ -56,10 +56,33 @@ class Blockchain {
     return genesisBlock;
   }
 
-  mineBlock(transactions = null) {
+  mineBlock() {
     const index = this.#blocks.length;
     const timestamp = Date.now();
-    transactions ??= this.#transactionPool; // mined blocks include all pending transactions by default (unrealistic)
+    const transactions = []; // mined blocks include all valid pending transactions by default (unrealistic)
+
+    for (const transaction of this.#transactionPool) {
+      try {
+        if (this.isTransactionValid(transaction)) {
+          for (const input of transaction.inputs) {
+            delete this.#utxos[input["txid:vout"]]; // delete the spent utxos
+          }
+
+          for (const [index, output] of transaction.outputs.entries()) {
+            this.#utxos[transaction.txid + ":" + index] = {
+              // add the new utxos
+              address: output.address,
+              amount: output.amount,
+              locked: false,
+            };
+          }
+          transactions.push(transaction);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     const previousHash = index === 0 ? "0" : this.#blocks[index - 1].hash;
 
     const { hash, nonce } = this.calculateProofOfWork(
@@ -118,23 +141,18 @@ class Blockchain {
   }
 
   addTransaction(transaction) {
-    if (this.validateTransaction(transaction)) {
-      for (const input of transaction.inputs) {
-        delete this.#utxos[input["txid:vout"]]; // delete the spent utxos
+    if (this.isTransactionValid(transaction)) {
+      if (this.#transactionPool.some((tx) => tx.txid === transaction.txid)) {
+        throw new Error("Transaction invalid: already in mempool");
       }
-
-      for (const [index, output] of transaction.outputs.entries()) {
-        this.#utxos[transaction.txid + ":" + index] = {
-          // add the new utxos
-          address: output.address,
-          amount: output.amount,
-        };
+      for (const input of transaction.inputs) {
+        this.#utxos[input["txid:vout"]].locked = true; // delete the spent utxos
       }
       this.#transactionPool.push(transaction);
     }
   }
 
-  validateTransaction(transaction) {
+  isTransactionValid(transaction) {
     // inputs reference valid utxos
     // all signatures blank -> check the hashes for the inputs -> verify the sender signed it
 
@@ -201,12 +219,12 @@ class Blockchain {
   getUtxosForPkey(publicKey) {
     return Object.fromEntries(
       Object.entries(this.#utxos).filter(
-        ([, utxo]) => utxo.address === publicKey
+        ([, utxo]) => utxo.address === publicKey && !utxo.locked
       )
     );
   }
 
-  validateBlockchain() {
+  isBlockchainValid() {
     for (let i = 1; i < this.#blocks.length; i++) {
       const block = this.#blocks[i];
       if (block.previousHash != this.#blocks[i - 1].hash)

@@ -50,7 +50,6 @@ class Wallet {
 
     // collect enough UTXOs to cover the amount
     for (const [key, utxo] of Object.entries(this.utxos)) {
-      console.log("currently processing ", key);
       if (fundsToSpend >= amount) break;
       fundsToSpend += utxo.amount;
       inputs.push({

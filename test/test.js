@@ -1,6 +1,12 @@
 import Blockchain from "../core/blockchain.js";
 import Transaction from "../core/transaction.js";
 import Wallet from "../core/wallet.js";
+import {
+  WALLET1,
+  WALLET2,
+  WALLET3,
+  DEFAULT_WALLETS,
+} from "../constants/defaultData.js";
 
 // error message formatting
 process.on("uncaughtException", (err) => {
@@ -10,18 +16,7 @@ process.on("uncaughtException", (err) => {
 const bc = new Blockchain();
 
 // start of user creation
-
-const { publicKey: user1Pk, privateKey: user1Sk } = Wallet.initializeKeyPair();
-const user1 = new Wallet(user1Pk, user1Sk);
-user1.connectToNode(bc);
-
-const { publicKey: user2Pk, privateKey: user2Sk } = Wallet.initializeKeyPair();
-const user2 = new Wallet(user2Pk, user2Sk);
-user2.connectToNode(bc);
-
-const { publicKey: user3Pk, privateKey: user3Sk } = Wallet.initializeKeyPair();
-const user3 = new Wallet(user3Pk, user3Sk);
-user3.connectToNode(bc);
+DEFAULT_WALLETS.forEach((wallet) => wallet.connectToNode(bc));
 
 // console.log(
 //   "Wallets created: \n" +
@@ -37,51 +32,34 @@ user3.connectToNode(bc);
 
 // start of UTXO initialization
 
-bc.utxos = {
-  "tx1:0": { address: user1.publicKey, amount: 5 },
-  "tx1:1": { address: user1.publicKey, amount: 8 },
-  "tx1:2": { address: user2.publicKey, amount: 4 },
-  "tx2:0": { address: user3.publicKey, amount: 4 },
-};
-
-console.log("user1 balance: " + user1.calculateBalance());
-console.log("user2 balance: " + user2.calculateBalance());
-console.log("user3 balance: " + user3.calculateBalance());
+console.log("user1 balance: " + WALLET1.calculateBalance());
+console.log("user2 balance: " + WALLET2.calculateBalance());
+console.log("user3 balance: " + WALLET3.calculateBalance());
 
 // end of UTXO initialization
 
 // start of transaction initialization
 
-const t1 = user1.createTransaction({ to: user2.publicKey, amount: 10 });
+const t1 = WALLET1.createTransaction({ to: WALLET2.publicKey, amount: 10 });
 bc.addTransaction(t1);
 
-// console.log("user1 balance: " + user1.calculateBalance());
-// console.log("user2 balance: " + user2.calculateBalance());
-// console.log("user3 balance: " + user3.calculateBalance());
-
-const t2 = user2.createTransaction({ to: user3.publicKey, amount: 12 });
-bc.addTransaction(t2);
-
-// console.log("user1 balance: " + user1.calculateBalance());
-// console.log("user2 balance: " + user2.calculateBalance());
-// console.log("user3 balance: " + user3.calculateBalance());
-
-// console.log(bc.utxos);
 bc.mineBlock();
 
-// const t3 = user3.createTransaction({ to: user1.publicKey, amount: 14 });
-// bc.addTransaction(t3);
+const t2 = WALLET2.createTransaction({ to: WALLET3.publicKey, amount: 12 });
+bc.addTransaction(t2);
 
-// console.log("user1 balance: " + user1.calculateBalance());
-// console.log("user2 balance: " + user2.calculateBalance());
-// console.log("user3 balance: " + user3.calculateBalance());
+bc.mineBlock();
 
-const t4 = user1.createTransaction({ to: user2.publicKey, amount: 2 });
+console.log(bc.utxos);
+console.log("user1 balance: " + WALLET1.calculateBalance());
+console.log("user2 balance: " + WALLET2.calculateBalance());
+console.log("user3 balance: " + WALLET3.calculateBalance());
+
+const t4 = WALLET1.createTransaction({ to: WALLET2.publicKey, amount: 3 });
 bc.addTransaction(t4);
-
-// console.log("user1 balance: " + user1.calculateBalance());
-// console.log("user2 balance: " + user2.calculateBalance());
-// console.log("user3 balance: " + user3.calculateBalance());
+console.log(bc.utxos);
+const t5 = WALLET1.createTransaction({ to: WALLET2.publicKey, amount: 1 });
+bc.addTransaction(t5);
 
 // console.log(bc.utxos);
 bc.mineBlock();
@@ -145,11 +123,10 @@ bc.mineBlock();
 bc.printBlocks();
 
 console.log(
-  bc.validateBlockchain()
+  bc.isBlockchainValid()
     ? "\x1b[1m\x1b[32mBlockchain is valid\x1b[0m"
     : "invalid"
 );
-
-console.log("user1 balance: " + user1.calculateBalance());
-console.log("user2 balance: " + user2.calculateBalance());
-console.log("user3 balance: " + user3.calculateBalance());
+console.log("user1 balance: " + WALLET1.calculateBalance());
+console.log("user2 balance: " + WALLET2.calculateBalance());
+console.log("user3 balance: " + WALLET3.calculateBalance());
