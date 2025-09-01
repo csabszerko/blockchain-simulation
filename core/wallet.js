@@ -1,5 +1,7 @@
 import Transaction from "./transaction.js";
 import forge from "node-forge";
+import { Buffer } from "buffer";
+import { toHex } from "./utils.js";
 
 class Wallet {
   #privateKey; // ES2020 syntax for private properties
@@ -14,8 +16,8 @@ class Wallet {
   static initializeKeyPair() {
     const { publicKey, privateKey } = forge.pki.ed25519.generateKeyPair();
     return {
-      publicKey: publicKey.toString("hex"),
-      privateKey: privateKey.toString("hex"),
+      publicKey: toHex(publicKey),
+      privateKey: toHex(privateKey),
     };
   }
 
@@ -100,13 +102,13 @@ class Wallet {
         .digest()
         .toHex();
 
-      const signature = forge.pki.ed25519
-        .sign({
+      const signature = toHex(
+        forge.pki.ed25519.sign({
           // also accepts a forge ByteBuffer or Uint8Array
           message: Buffer.from(transactionHash, "hex"),
           privateKey: Buffer.from(this.#privateKey, "hex"),
         })
-        .toString("hex");
+      );
 
       input.signature = signature;
     }

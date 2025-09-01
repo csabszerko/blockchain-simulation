@@ -1,5 +1,7 @@
+import { DEFAULT_UTXOS } from "../constants/defaultData.js";
 import Block from "./block.js";
 import forge from "node-forge";
+import { Buffer } from "buffer";
 
 class Blockchain {
   #blocks;
@@ -9,7 +11,8 @@ class Blockchain {
   constructor() {
     this.#blocks = [];
     this.#transactionPool = [];
-    this.#utxos = {};
+    //default utxos
+    this.#utxos = DEFAULT_UTXOS;
     this.#difficulty = 1;
     this.createGenesisBlock();
   }
@@ -20,6 +23,10 @@ class Blockchain {
   }
   get blocks() {
     return JSON.parse(JSON.stringify(this.#blocks)); // deep copy
+  }
+
+  get transactionPool() {
+    return JSON.parse(JSON.stringify(this.#transactionPool)); // deep copy
   }
 
   get utxos() {
