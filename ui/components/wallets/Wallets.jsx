@@ -1,4 +1,5 @@
 import Wallet from "../../../core/wallet";
+import { useEffect } from "react";
 import "./Wallets.css";
 import { useBlockchainContext } from "../../context/BlockchainContext";
 
@@ -40,11 +41,22 @@ function Wallets({ wallets, setWallets }) {
         <button type="submit">create wallet</button>
       </form>
       <h3>wallets connected to node</h3>
-      <ul>
-        {wallets.map((wallet) => (
-          <li key={wallet.publicKey}>wallet pkey: {wallet.publicKey}</li>
-        ))}
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>public key</th>
+            <th>balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {wallets.map((wallet) => (
+            <tr key={wallet.publicKey}>
+              <td>{wallet.publicKey}</td>
+              <td>{wallet.balance}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { useBlockchainContext } from "../../context/BlockchainContext";
+import "./Transactions.css";
 
 function Transactions({ wallets }) {
   const proxiedBlockchain = useBlockchainContext();

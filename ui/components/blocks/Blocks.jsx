@@ -1,7 +1,7 @@
 import { useBlockchainContext } from "../../context/BlockchainContext";
 import "./Blocks.css";
 
-function Blocks() {
+function Blocks({ wallets }) {
   const proxiedBlockchain = useBlockchainContext();
   return (
     <div>
@@ -12,6 +12,9 @@ function Blocks() {
       <button
         onClick={() => {
           proxiedBlockchain.mineBlock();
+          wallets.forEach((wallet) => {
+            wallet.calculateBalance();
+          });
         }}
       >
         mine block

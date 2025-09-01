@@ -14,8 +14,12 @@ function App() {
   const [wallets, setWallets] = useState(() => [...DEFAULT_WALLETS]);
 
   useEffect(() => {
-    wallets.forEach((wallet) => wallet.connectToNode(proxiedBlockchain));
-  }, [proxiedBlockchain, wallets]);
+    wallets.forEach((wallet) => {
+      wallet.connectToNode(proxiedBlockchain);
+      wallet.calculateBalance();
+    });
+  }, []);
+
   const nodeId = useRef(uuidv4());
   return (
     <>
@@ -23,7 +27,7 @@ function App() {
       <div className="grid">
         <Wallets wallets={wallets} setWallets={setWallets} />
         <Transactions wallets={wallets} />
-        <Blocks />
+        <Blocks wallets={wallets} />
       </div>
     </>
   );
