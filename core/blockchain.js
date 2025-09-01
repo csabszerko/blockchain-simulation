@@ -25,6 +25,10 @@ class Blockchain {
     return JSON.parse(JSON.stringify(this.#blocks)); // deep copy
   }
 
+  get utxos() {
+    return JSON.parse(JSON.stringify(this.#utxos)); // deep copy
+  }
+
   get transactionPool() {
     return JSON.parse(JSON.stringify(this.#transactionPool)); // deep copy
   }

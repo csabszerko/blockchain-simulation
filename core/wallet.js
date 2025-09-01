@@ -11,6 +11,7 @@ class Wallet {
     this.publicKey = publicKey;
     this.#privateKey = privateKey;
     this.utxos = {};
+    this.balance = 0;
   }
 
   static initializeKeyPair() {
@@ -31,10 +32,13 @@ class Wallet {
   }
 
   calculateBalance() {
-    return Object.values(this.getWalletUtxos()).reduce(
-      (accumulator, UTXO) => accumulator + UTXO.amount,
+    const utxos = this.getWalletUtxos();
+    const balance = Object.values(utxos).reduce(
+      (accumulator, UTXO) => accumulator + Number(UTXO.amount),
       0
     );
+    this.balance = balance;
+    return balance;
   }
 
   createTransaction({ to, amount }) {
@@ -46,6 +50,7 @@ class Wallet {
 
     // collect enough UTXOs to cover the amount
     for (const [key, utxo] of Object.entries(this.utxos)) {
+      console.log("currently processing ", key);
       if (fundsToSpend >= amount) break;
       fundsToSpend += utxo.amount;
       inputs.push({
@@ -59,7 +64,7 @@ class Wallet {
     }
 
     // always add recipient output
-    outputs.push({ address: to, amount });
+    outputs.push({ address: to, amount: Number(amount) });
 
     // add change output if needed
     const change = fundsToSpend - amount;

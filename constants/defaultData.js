@@ -13,6 +13,8 @@ export const WALLET3 = new Wallet(
   "89f95f84c498a8895a104040371a5442ea9c65d6bbf3f9b3c9d961923b6446bb241133a76a1688bd550a04e8ea5faa82a16bd8f0e956a988bd7c0e483f8688d5"
 );
 
+export const DEFAULT_WALLETS = [WALLET1, WALLET2, WALLET3];
+
 export const DEFAULT_UTXOS = {
   "tx1:0": { address: WALLET1.publicKey, amount: 5 },
   "tx1:1": { address: WALLET1.publicKey, amount: 8 },
