@@ -1,0 +1,16 @@
+nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    border-bottom: 5px solid #1a1a1a;
+    background-color: #202020;
+    display: flex;
+    justify-content:space-around;
+    align-items: flex-start;
+}
+
+nav button {
+    margin: 10px 20px 0 0; /* optional: adds spacing from top and right */
+}

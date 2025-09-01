@@ -30,9 +30,9 @@
 
 # todo
 
-- ui built (react?)
-- support for multinode blockchains
+- `react ui`
 - consensus rules
+- support for multinode blockchains
 - miner rewards/gas fees ?
 - support for explicit transaction selection ?
 - try to break the system more
