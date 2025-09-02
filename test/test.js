@@ -55,8 +55,8 @@ console.log("user1 balance: " + WALLET1.calculateBalance());
 console.log("user2 balance: " + WALLET2.calculateBalance());
 console.log("user3 balance: " + WALLET3.calculateBalance());
 
-const t4 = WALLET1.createTransaction({ to: WALLET2.publicKey, amount: 3 });
-bc.addTransaction(t4);
+// const t4 = WALLET1.createTransaction({ to: WALLET2.publicKey, amount: 3 });
+// bc.addTransaction(t4);
 console.log(bc.utxos);
 const t5 = WALLET1.createTransaction({ to: WALLET2.publicKey, amount: 1 });
 bc.addTransaction(t5);

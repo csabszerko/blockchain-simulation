@@ -1,4 +1,7 @@
-import { DEFAULT_UTXOS } from "../constants/defaultData.js";
+import {
+  DEFAULT_TRANSACTIONS,
+  DEFAULT_UTXOS,
+} from "../constants/defaultData.js";
 import Block from "./block.js";
 import forge from "node-forge";
 import { Buffer } from "buffer";
@@ -11,9 +14,8 @@ class Blockchain {
   constructor() {
     this.#blocks = [];
     this.#transactionPool = [];
-    //default utxos
-    this.#utxos = DEFAULT_UTXOS;
-    this.#difficulty = 1;
+    this.#utxos = {};
+    this.#difficulty = 2;
     this.createGenesisBlock();
   }
 
@@ -33,10 +35,6 @@ class Blockchain {
     return JSON.parse(JSON.stringify(this.#transactionPool)); // deep copy
   }
 
-  get utxos() {
-    return this.#utxos;
-  }
-
   set utxos(utxos) {
     this.#utxos = utxos;
   }
@@ -46,12 +44,13 @@ class Blockchain {
     const genesisBlock = new Block(
       0,
       Date.now(),
-      "this is the genesis block",
+      structuredClone(DEFAULT_TRANSACTIONS),
       "no previous hash",
       "genesis hash",
       "genesis nonce"
     );
 
+    this.#utxos = structuredClone(DEFAULT_UTXOS);
     this.#blocks.push(genesisBlock);
     return genesisBlock;
   }
@@ -64,18 +63,7 @@ class Blockchain {
     for (const transaction of this.#transactionPool) {
       try {
         if (this.isTransactionValid(transaction)) {
-          for (const input of transaction.inputs) {
-            delete this.#utxos[input["txid:vout"]]; // delete the spent utxos
-          }
-
-          for (const [index, output] of transaction.outputs.entries()) {
-            this.#utxos[transaction.txid + ":" + index] = {
-              // add the new utxos
-              address: output.address,
-              amount: output.amount,
-              locked: false,
-            };
-          }
+          this.updateUtxosFromTransaction(transaction);
           transactions.push(transaction);
         }
       } catch (e) {
@@ -140,21 +128,44 @@ class Blockchain {
       .toHex();
   }
 
+  getUtxosForPkey(publicKey) {
+    return Object.fromEntries(
+      Object.entries(this.#utxos).filter(
+        ([, utxo]) => utxo.address === publicKey && !utxo.reserved
+      )
+    );
+  }
+
+  updateUtxosFromTransaction(transaction, targetUtxos) {
+    targetUtxos ??= this.#utxos;
+    for (const input of transaction.inputs) {
+      delete targetUtxos[input["txid:vout"]]; // delete the spent utxos
+    }
+
+    for (const [index, output] of transaction.outputs.entries()) {
+      targetUtxos[transaction.txid + ":" + index] = {
+        // add the new utxos
+        address: output.address,
+        amount: output.amount,
+        reserved: false,
+      };
+    }
+  }
+
   addTransaction(transaction) {
     if (this.isTransactionValid(transaction)) {
       if (this.#transactionPool.some((tx) => tx.txid === transaction.txid)) {
         throw new Error("Transaction invalid: already in mempool");
       }
       for (const input of transaction.inputs) {
-        this.#utxos[input["txid:vout"]].locked = true; // delete the spent utxos
+        this.#utxos[input["txid:vout"]].reserved = true; // delete the spent utxos
       }
       this.#transactionPool.push(transaction);
     }
   }
 
-  isTransactionValid(transaction) {
-    // inputs reference valid utxos
-    // all signatures blank -> check the hashes for the inputs -> verify the sender signed it
+  isTransactionValid(transaction, validationUtxos) {
+    validationUtxos ??= this.#utxos;
 
     const txidHash = forge.md.sha256
       .create()
@@ -179,7 +190,7 @@ class Blockchain {
 
     for (const input of transaction.inputs) {
       const utxoTxidVout = input["txid:vout"];
-      const referencedUtxo = this.#utxos[utxoTxidVout];
+      const referencedUtxo = validationUtxos[utxoTxidVout];
 
       if (!referencedUtxo) {
         throw new Error(
@@ -207,24 +218,18 @@ class Blockchain {
           signature: Buffer.from(input.signature, "hex"),
           publicKey: Buffer.from(referencedUtxo.address, "hex"),
         })
-      )
+      ) {
         throw new Error(
           "Transaction invalid: transaction inputs contain incorrect signatures"
         );
+      }
     }
 
     return true;
   }
 
-  getUtxosForPkey(publicKey) {
-    return Object.fromEntries(
-      Object.entries(this.#utxos).filter(
-        ([, utxo]) => utxo.address === publicKey && !utxo.locked
-      )
-    );
-  }
-
   isBlockchainValid() {
+    const replayUtxos = structuredClone(DEFAULT_UTXOS);
     for (let i = 1; i < this.#blocks.length; i++) {
       const block = this.#blocks[i];
       if (block.previousHash != this.#blocks[i - 1].hash)
@@ -248,6 +253,13 @@ class Blockchain {
         )
       )
         throw new Error("Blockchain invalid: block hashes are incorrect");
+
+      for (const transaction of block.transactions) {
+        if (!this.isTransactionValid(transaction, replayUtxos)) {
+          throw new Error("Blockchain invalid: invalid transactions");
+        }
+        this.updateUtxosFromTransaction(transaction, replayUtxos);
+      }
     }
     return true;
   }
