@@ -7,11 +7,12 @@ import {
   WALLET3,
   DEFAULT_WALLETS,
 } from "../constants/defaultData.js";
+import forge from "node-forge";
 
 // error message formatting
-process.on("uncaughtException", (err) => {
-  console.log("\x1b[1m\x1b[31m" + err.message + "\x1b[0m");
-});
+// process.on("uncaughtException", (err) => {
+//   console.log("\x1b[1m\x1b[31m" + err.message + "\x1b[0m");
+// });
 
 const bc = new Blockchain();
 
@@ -45,30 +46,30 @@ bc.addTransaction(t1);
 
 bc.mineBlock();
 
-const t2 = WALLET2.createTransaction({ to: WALLET3.publicKey, amount: 12 });
-bc.addTransaction(t2);
+// const t2 = WALLET2.createTransaction({ to: WALLET3.publicKey, amount: 12 });
+// bc.addTransaction(t2);
 
-bc.mineBlock();
+// bc.mineBlock();
 
-console.log(bc.utxos);
+console.log(JSON.stringify(bc.blocks, null, 5));
 console.log("user1 balance: " + WALLET1.calculateBalance());
 console.log("user2 balance: " + WALLET2.calculateBalance());
 console.log("user3 balance: " + WALLET3.calculateBalance());
 
 // const t4 = WALLET1.createTransaction({ to: WALLET2.publicKey, amount: 3 });
 // bc.addTransaction(t4);
-console.log(bc.utxos);
-const t5 = WALLET1.createTransaction({ to: WALLET2.publicKey, amount: 1 });
-bc.addTransaction(t5);
+// console.log(bc.utxos);
+// const t5 = WALLET1.createTransaction({ to: WALLET2.publicKey, amount: 1 });
+// bc.addTransaction(t5);
 
 // console.log(bc.utxos);
-bc.mineBlock();
+// bc.mineBlock();
 
 // end of transaction initialization
 
 // this case is to completely remine the last block with my own data -> fixed by the blocks array being private and unreferencable
 
-// const t3 = user3.createTransaction({ to: user1.publicKey, amount: 1000 });
+// const t3 = WALLET3.createTransaction({ to: WALLET1.publicKey, amount: 1 });
 // const t5 = new Transaction({
 //   inputs: [
 //     {
@@ -120,7 +121,7 @@ bc.mineBlock();
 
 // bc.blocks = tamperedBlocks;
 
-bc.printBlocks();
+// bc.printBlocks();
 
 console.log(
   bc.isBlockchainValid()

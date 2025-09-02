@@ -15,22 +15,26 @@
 > - blockchain difficulty
 > - wallets and balances
 > - cross wallet transactions (single party)
-> - utxo system
+> - utxo system, balance calculation
 > - digital signatures with asymmetric encryption
-> - blockchain validation
+> - blockchain validation (signatures, hashes, replaying tx history for utxos)
+> - support for running as a terminal app (single node only)
+> - ui in react for single/multi node setup (in progress)
 > - ...
 
 > ## intentional discrepancies for the sake of simplicity
 >
 > - wallet addresses are their public keys
-> - transactions can not contain multiple senders/recipients
+> - transactions can not contain multiple wallet addresses as senders/recipients
 > - mining includes all pending transactions in the next block
 > - transactions don't have locking scripts
+> - gossip networks consist of all other nodes instead of just a subset
+> - no headers-first syncing
 > - ...
 
 # todo
 
-- `react ui`
+- merkle root in blocks
 - consensus rules
 - support for multinode blockchains
 - miner rewards/gas fees ?

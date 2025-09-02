@@ -1,11 +1,11 @@
 import Wallet from "../../../core/wallet";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import "./Wallets.css";
 import { useBlockchainContext } from "../../context/BlockchainContext";
 
 function Wallets({ wallets, setWallets }) {
   const proxiedBlockchain = useBlockchainContext();
-  const placeholderKeys = Wallet.initializeKeyPair();
+  const placeholderKeys = useRef(Wallet.initializeKeyPair());
 
   function createWallet(event) {
     event.preventDefault();
@@ -17,6 +17,7 @@ function Wallets({ wallets, setWallets }) {
     wallet.connectToNode(proxiedBlockchain);
 
     setWallets((prev) => [...prev, wallet]);
+    placeholderKeys.current = Wallet.initializeKeyPair();
     event.target.reset();
   }
 
@@ -28,14 +29,14 @@ function Wallets({ wallets, setWallets }) {
         <input
           id="publicKey"
           name="publicKey"
-          defaultValue={placeholderKeys.publicKey}
+          defaultValue={placeholderKeys.current.publicKey}
         />
 
         <label htmlFor="privateKey">wallet private key</label>
         <input
           id="privateKey"
           name="privateKey"
-          defaultValue={placeholderKeys.privateKey}
+          defaultValue={placeholderKeys.current.privateKey}
         />
 
         <button type="submit">create wallet</button>

@@ -52,7 +52,7 @@ function Transactions({ wallets }) {
 
         <button type="submit">create transaction</button>
       </form>
-      <h3>pending transactions on node</h3>
+      <h3>node tx mempool</h3>
       <ul>
         {proxiedBlockchain.transactionPool.map((tx) => (
           <pre key={tx.txid}>{JSON.stringify(tx, null, 2)}</pre>

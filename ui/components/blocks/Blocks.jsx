@@ -5,6 +5,8 @@ function Blocks({ wallets }) {
   const proxiedBlockchain = useBlockchainContext();
   return (
     <div>
+      <h3> utxos on this node</h3>
+      <pre>{JSON.stringify(proxiedBlockchain.utxos, null, 5)}</pre>
       <h3>
         blockchain is{" "}
         {proxiedBlockchain.isBlockchainValid ? "valid" : "invalid"}
@@ -20,8 +22,6 @@ function Blocks({ wallets }) {
         mine block
       </button>
       <pre>{JSON.stringify(proxiedBlockchain.blocks, null, 5)}</pre>
-      <h3> utxos on this node</h3>
-      <pre>{JSON.stringify(proxiedBlockchain.utxos, null, 5)}</pre>
     </div>
   );
 }

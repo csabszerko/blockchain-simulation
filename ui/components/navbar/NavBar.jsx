@@ -10,6 +10,7 @@ function NavBar({ uuid }) {
       >
         connect new node
       </button>
+      <button>sync with other nodes</button>
     </nav>
   );
 }
