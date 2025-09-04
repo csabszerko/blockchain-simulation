@@ -228,38 +228,51 @@ class Blockchain {
     return true;
   }
 
+  isBlockValid(block, previousBlock, targetUtxos) {
+    if (block.previousHash != previousBlock.hash)
+      throw new Error(
+        "Block invalid: block hashes are incorrectly linked on the blockchain"
+      );
+
+    if (!block.hash.startsWith("0".repeat(this.#difficulty)))
+      throw new Error(
+        "Block invalid: proof of work has not been computed correctly"
+      );
+
+    if (
+      block.hash !=
+      this.calculateHash(
+        block.index,
+        block.timestamp,
+        block.transactions,
+        block.previousHash,
+        block.nonce
+      )
+    )
+      throw new Error("Block invalid: block hashes are incorrect");
+
+    targetUtxos ??= this.#utxos;
+    const validationUtxos = structuredClone(targetUtxos); // create a snapshotted version to validate against
+
+    for (const transaction of block.transactions) {
+      if (!this.isTransactionValid(transaction, validationUtxos)) {
+        throw new Error("Block invalid: invalid transactions");
+      }
+      this.updateUtxosFromTransaction(transaction, validationUtxos);
+    }
+
+    Object.keys(targetUtxos).forEach((key) => delete targetUtxos[key]); // clear out target utxo set while keeping the reference
+    Object.assign(targetUtxos, validationUtxos); // populate target utxo set with the new confirmed-valid result utxos of the block
+    return true;
+  }
+
   isBlockchainValid() {
+    // replay transaction history
     const replayUtxos = structuredClone(DEFAULT_UTXOS);
     for (let i = 1; i < this.#blocks.length; i++) {
       const block = this.#blocks[i];
-      if (block.previousHash != this.#blocks[i - 1].hash)
-        throw new Error(
-          "Blockchain invalid: block hashes are incorrectly linked on the blockchain"
-        );
-
-      if (!block.hash.startsWith("0".repeat(this.#difficulty)))
-        throw new Error(
-          "Blockchain invalid: proof of work has not been computed correctly"
-        );
-
-      if (
-        block.hash !=
-        this.calculateHash(
-          block.index,
-          block.timestamp,
-          block.transactions,
-          block.previousHash,
-          block.nonce
-        )
-      )
-        throw new Error("Blockchain invalid: block hashes are incorrect");
-
-      for (const transaction of block.transactions) {
-        if (!this.isTransactionValid(transaction, replayUtxos)) {
-          throw new Error("Blockchain invalid: invalid transactions");
-        }
-        this.updateUtxosFromTransaction(transaction, replayUtxos);
-      }
+      if (!this.isBlockValid(block, this.#blocks[i - 1], replayUtxos))
+        return false;
     }
     return true;
   }

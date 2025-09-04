@@ -35,6 +35,7 @@
 # todo
 
 - merkle root in blocks
+- migrate temporary styling and components to shadcn (?)
 - consensus rules
 - support for multinode blockchains
 - miner rewards/gas fees ?
