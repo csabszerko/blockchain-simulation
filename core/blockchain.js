@@ -19,6 +19,47 @@ class Blockchain {
     this.createGenesisBlock();
   }
 
+  static fromObject(data) {
+    const bc = new Blockchain();
+    bc._setBlocks(data.blocks);
+    bc._setTransactionPool(data.transactionPool);
+    bc._setUtxos(data.utxos);
+    bc._setDifficulty(data.difficulty);
+    return bc;
+  }
+
+  // "protected" methods (these are technically still public in js)
+
+  _getBlocks() {
+    return this.#blocks;
+  }
+  _setBlocks(blocks) {
+    this.#blocks = blocks;
+  }
+
+  _getUtxos() {
+    return this.#utxos;
+  }
+
+  _setUtxos(utxos) {
+    this.#utxos = utxos;
+  }
+
+  _getDifficulty() {
+    return this.#difficulty;
+  }
+
+  _setDifficulty(difficulty) {
+    this.#difficulty = difficulty;
+  }
+
+  _getTransactionPool() {
+    return this.#transactionPool;
+  }
+
+  _setTransactionPool(transactionPool) {
+    this.#transactionPool = transactionPool;
+  }
   // testing purposes only
   set blocks(blocks) {
     this.#blocks = blocks;
@@ -62,6 +103,7 @@ class Blockchain {
 
     for (const transaction of this.#transactionPool) {
       try {
+        // only mine blocks with good transactions
         if (this.isTransactionValid(transaction)) {
           this.updateUtxosFromTransaction(transaction);
           transactions.push(transaction);

@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState } from "react";
-import Blockchain from "../../core/blockchain";
+import BlockchainNode from "../../core/blockchainNode";
 
 const BlockchainContext = createContext(null);
 
-const blockchainInstance = new Blockchain(); // singleton
+const blockchainInstance = new BlockchainNode(); // singleton
 
 export const BlockchainContextProvider = ({ children }) => {
-  const [blocks, setBlocks] = useState(blockchainInstance.blocks);
+  const [, forceUpdate] = useState(0);
 
   // intercept changes to the blockchain and trigger ui changes
   const proxiedBlockchain = new Proxy(blockchainInstance, {
@@ -16,7 +16,7 @@ export const BlockchainContextProvider = ({ children }) => {
       if (typeof value === "function") {
         return (...args) => {
           const result = value.apply(target, args);
-          setBlocks(target.blocks); // update react state
+          forceUpdate((n) => n + 1); // update react state
           return result;
         };
       }

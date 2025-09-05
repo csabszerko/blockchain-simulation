@@ -8,24 +8,13 @@ import Transactions from "../components/transactions/Transactions.jsx";
 import NavBar from "../components/navbar/NavBar.jsx";
 import Blocks from "../components/Blocks/Blocks.jsx";
 import { DEFAULT_WALLETS } from "../../constants/defaultData.js";
-import { useBroadcastChannel } from "../hooks/useBroadcastChannel.jsx";
 
 function App() {
+  const nodeId = useRef(uuidv4()).current;
   const proxiedBlockchain = useBlockchainContext();
-  const [wallets, setWallets] = useState(() => [...DEFAULT_WALLETS]);
-  const nodeId = useRef(uuidv4());
+  proxiedBlockchain.nodeId = nodeId;
 
-  const handleMessage = (message) => {
-    if (message.sender === nodeId.current) return;
-    console.log(message);
-    if (message.type === "SYN") {
-      broadcastMessage({
-        sender: nodeId.current,
-        type: "ACK",
-      });
-    }
-  };
-  const broadcastMessage = useBroadcastChannel("gossip", handleMessage);
+  const [wallets, setWallets] = useState(() => [...DEFAULT_WALLETS]);
 
   useEffect(() => {
     wallets.forEach((wallet) => {
@@ -33,23 +22,22 @@ function App() {
       wallet.calculateBalance();
     });
 
-    broadcastMessage({
-      sender: nodeId.current,
-      type: "SYN",
+    proxiedBlockchain.channel.postMessage({
+      from: nodeId,
+      to: null,
+      type: "NEW_CONNECTION_SYN",
+      body: null,
     });
   }, []); // useEffect runs twice in strict mode
 
   return (
     <>
-      <NavBar uuid={nodeId.current}></NavBar>
+      <NavBar nodeId={nodeId}></NavBar>
       <div className="grid">
         <Wallets wallets={wallets} setWallets={setWallets} />
         <Transactions wallets={wallets} />
         <Blocks wallets={wallets} />
       </div>
-      <button onClick={() => broadcastMessage("hello from " + nodeId.current)}>
-        bc
-      </button>
     </>
   );
 }
