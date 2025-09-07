@@ -55,11 +55,10 @@ class BlockchainNode extends Blockchain {
         difficulty: this._getDifficulty(),
       }, // needs to send blocks, utxos, pending transactions, difficulty, etc when syncing
     });
-    console.log("Broadcast: new connection synchronising");
+    console.log("Gossip incoming: new connection sync request");
   }
 
   handleNewConnectionSynAck(message) {
-    console.log(message);
     if (message.to === this.nodeId) {
       const receivedBlockchain = Blockchain.fromObject(message.body);
       if (receivedBlockchain.isBlockchainValid()) {
@@ -69,7 +68,9 @@ class BlockchainNode extends Blockchain {
         this._setUtxos(message.body.utxos);
         this._setTransactionPool(message.body.transactionPool);
       }
-      console.log("Broadcast: new connection acknowledged, blockchain synced");
+      console.log(
+        "Gossip incoming:: new connection request acknowledged, blockchain synced"
+      );
     }
   }
 
@@ -108,7 +109,9 @@ class BlockchainNode extends Blockchain {
         block: newBlock,
       }, // needs to send blocks, utxos, pending transactions, difficulty, etc when syncing
     });
-    console.log("Gossip: new block broadcasted:" + JSON.stringify(newBlock));
+    console.log(
+      "Gossip incoming: new block proposal:" + JSON.stringify(newBlock)
+    );
   }
 
   broadcastNewTransaction(transaction) {
@@ -122,7 +125,7 @@ class BlockchainNode extends Blockchain {
       }, // needs to send blocks, utxos, pending transactions, difficulty, etc when syncing
     });
     console.log(
-      "Gossip: new transaction broadcasted:" + JSON.stringify(transaction)
+      "Gossip incoming: new transaction proposal:" + JSON.stringify(transaction)
     );
   }
 }

@@ -16,10 +16,24 @@ function App() {
 
   const [wallets, setWallets] = useState(() => [...DEFAULT_WALLETS]);
 
+  // useEffect(() => {
+  //   wallets.forEach((wallet) => {
+  //     wallet.connectToNode(proxiedBlockchain);
+  //     wallet.calculateBalance();
+  //   });
+
+  //   proxiedBlockchain.channel.postMessage({
+  //     from: nodeId,
+  //     to: null,
+  //     type: "NEW_CONNECTION_SYN",
+  //     body: null,
+  //   });
+  // }, []); // useEffect runs twice in strict mode
+
   useEffect(() => {
     wallets.forEach((wallet) => {
       wallet.connectToNode(proxiedBlockchain);
-      wallet.calculateBalance();
+      wallet.calculateBalance(proxiedBlockchain);
     });
 
     proxiedBlockchain.channel.postMessage({
@@ -28,7 +42,22 @@ function App() {
       type: "NEW_CONNECTION_SYN",
       body: null,
     });
-  }, []); // useEffect runs twice in strict mode
+
+    const handler = () => {
+      const updatedWallets = wallets.map((wallet) => {
+        wallet.connectToNode(proxiedBlockchain);
+        wallet.calculateBalance(proxiedBlockchain);
+        return wallet;
+      });
+      setWallets([...updatedWallets]);
+    };
+
+    proxiedBlockchain.channel.addEventListener("message", handler);
+
+    return () => {
+      proxiedBlockchain.channel.removeEventListener("message", handler);
+    };
+  }, []);
 
   return (
     <>
