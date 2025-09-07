@@ -1,8 +1,8 @@
-import { useBlockchainContext } from "../../context/BlockchainContext";
+import { useNodeContext } from "../../context/NodeContext";
 import "./Transactions.css";
 
-function Transactions({ wallets }) {
-  const proxiedBlockchain = useBlockchainContext();
+function Transactions() {
+  const { transactionPool, addTransaction, wallets } = useNodeContext();
 
   function handleTransactionSubmit(event) {
     event.preventDefault();
@@ -14,7 +14,7 @@ function Transactions({ wallets }) {
     const amount = formData.get("amount");
 
     const tx = sender.createTransaction({ to, amount });
-    proxiedBlockchain.addTransaction(tx);
+    addTransaction(tx);
   }
 
   if (!wallets || wallets.length === 0) return <h3>Transactions</h3>;
@@ -54,7 +54,7 @@ function Transactions({ wallets }) {
       </form>
       <h3>node tx mempool</h3>
       <ul>
-        {proxiedBlockchain.transactionPool.map((tx) => (
+        {transactionPool.map((tx) => (
           <pre key={tx.txid}>{JSON.stringify(tx, null, 2)}</pre>
         ))}
       </ul>

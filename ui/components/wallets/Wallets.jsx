@@ -1,11 +1,21 @@
 import Wallet from "../../../core/wallet";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./Wallets.css";
-import { useBlockchainContext } from "../../context/BlockchainContext";
+import { useNodeContext } from "../../context/NodeContext";
 
-function Wallets({ wallets, setWallets }) {
-  const proxiedBlockchain = useBlockchainContext();
+function Wallets() {
+  const { wallets, addWallet, blocks } = useNodeContext();
+
+  const [walletBalances, setWalletBalances] = useState({});
   const placeholderKeys = useRef(Wallet.initializeKeyPair());
+
+  useEffect(() => {
+    const balances = {};
+    wallets.forEach((wallet) => {
+      balances[wallet.publicKey] = wallet.calculateBalance();
+    });
+    setWalletBalances(balances);
+  }, [blocks, wallets]);
 
   function createWallet(event) {
     event.preventDefault();
@@ -13,10 +23,8 @@ function Wallets({ wallets, setWallets }) {
     const publicKey = formData.get("publicKey");
     const privateKey = formData.get("privateKey");
 
-    const wallet = new Wallet(publicKey, privateKey);
-    wallet.connectToNode(proxiedBlockchain);
+    addWallet(publicKey, privateKey);
 
-    setWallets((prev) => [...prev, wallet]);
     placeholderKeys.current = Wallet.initializeKeyPair();
     event.target.reset();
   }
@@ -50,12 +58,18 @@ function Wallets({ wallets, setWallets }) {
           </tr>
         </thead>
         <tbody>
-          {wallets.map((wallet) => (
-            <tr key={wallet.publicKey}>
-              <td>{wallet.publicKey}</td>
-              <td>{wallet.balance}</td>
+          {wallets.length > 0 ? (
+            wallets.map((wallet) => (
+              <tr key={wallet.publicKey}>
+                <td>{wallet.publicKey}</td>
+                <td>{walletBalances[wallet.publicKey]}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={2}>No wallets</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

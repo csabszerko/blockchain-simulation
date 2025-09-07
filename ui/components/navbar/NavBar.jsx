@@ -1,7 +1,7 @@
-import { useBlockchainContext } from "../../context/BlockchainContext";
+import { useNodeContext } from "../../context/NodeContext";
 import "./NavBar.css";
 function NavBar({ nodeId }) {
-  const proxiedBlockchain = useBlockchainContext();
+  const proxiedBlockchain = useNodeContext();
   return (
     <nav>
       <h3>node connected as {nodeId}</h3>

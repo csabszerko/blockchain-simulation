@@ -1,27 +1,21 @@
-import { useBlockchainContext } from "../../context/BlockchainContext";
+import { useNodeContext } from "../../context/NodeContext";
 import "./Blocks.css";
 
 function Blocks({ wallets }) {
-  const proxiedBlockchain = useBlockchainContext();
+  const { blocks, addBlock, utxos, node } = useNodeContext();
   return (
     <div>
       <h3> utxos on this node</h3>
-      <pre>{JSON.stringify(proxiedBlockchain.utxos, null, 5)}</pre>
-      <h3>
-        blockchain is{" "}
-        {proxiedBlockchain.isBlockchainValid ? "valid" : "invalid"}
-      </h3>
+      <pre>{JSON.stringify(utxos, null, 5)}</pre>
+      <h3>blockchain is {node.isBlockchainValid ? "valid" : "invalid"}</h3>
       <button
         onClick={() => {
-          proxiedBlockchain.mineBlock();
-          wallets.forEach((wallet) => {
-            wallet.calculateBalance();
-          });
+          addBlock();
         }}
       >
         mine block
       </button>
-      <pre>{JSON.stringify(proxiedBlockchain.blocks, null, 5)}</pre>
+      <pre>{JSON.stringify(blocks, null, 5)}</pre>
     </div>
   );
 }

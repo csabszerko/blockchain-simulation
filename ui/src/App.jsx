@@ -1,4 +1,4 @@
-import { useBlockchainContext } from "../context/BlockchainContext.jsx";
+import { useNodeContext } from "../context/NodeContext.jsx";
 import { v4 as uuidv4 } from "uuid";
 import { useState, useRef, useEffect } from "react";
 
@@ -11,61 +11,20 @@ import { DEFAULT_WALLETS } from "../../constants/defaultData.js";
 
 function App() {
   const nodeId = useRef(uuidv4()).current;
-  const proxiedBlockchain = useBlockchainContext();
-  proxiedBlockchain.nodeId = nodeId;
-
-  const [wallets, setWallets] = useState(() => [...DEFAULT_WALLETS]);
-
-  // useEffect(() => {
-  //   wallets.forEach((wallet) => {
-  //     wallet.connectToNode(proxiedBlockchain);
-  //     wallet.calculateBalance();
-  //   });
-
-  //   proxiedBlockchain.channel.postMessage({
-  //     from: nodeId,
-  //     to: null,
-  //     type: "NEW_CONNECTION_SYN",
-  //     body: null,
-  //   });
-  // }, []); // useEffect runs twice in strict mode
+  const { node } = useNodeContext();
+  node.nodeId = nodeId;
 
   useEffect(() => {
-    wallets.forEach((wallet) => {
-      wallet.connectToNode(proxiedBlockchain);
-      wallet.calculateBalance(proxiedBlockchain);
-    });
-
-    proxiedBlockchain.channel.postMessage({
-      from: nodeId,
-      to: null,
-      type: "NEW_CONNECTION_SYN",
-      body: null,
-    });
-
-    const handler = () => {
-      const updatedWallets = wallets.map((wallet) => {
-        wallet.connectToNode(proxiedBlockchain);
-        wallet.calculateBalance(proxiedBlockchain);
-        return wallet;
-      });
-      setWallets([...updatedWallets]);
-    };
-
-    proxiedBlockchain.channel.addEventListener("message", handler);
-
-    return () => {
-      proxiedBlockchain.channel.removeEventListener("message", handler);
-    };
-  }, []);
+    node.broadcastNewConnectionSyncReq(nodeId, 2000);
+  });
 
   return (
     <>
       <NavBar nodeId={nodeId}></NavBar>
       <div className="grid">
-        <Wallets wallets={wallets} setWallets={setWallets} />
-        <Transactions wallets={wallets} />
-        <Blocks wallets={wallets} />
+        <Wallets />
+        <Transactions />
+        <Blocks />
       </div>
     </>
   );
