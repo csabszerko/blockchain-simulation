@@ -18,6 +18,12 @@ export const NodeContextProvider = ({ children }) => {
     wallet.connectToNode(nodeInstance);
   });
 
+  const initStates = () => {
+    setBlocks([...nodeInstance.blocks]);
+    setUtxos(nodeInstance.utxos);
+    setTransactionPool([...nodeInstance.transactionPool]);
+  };
+
   const addWallet = (publicKey, privateKey) => {
     const wallet = new Wallet(publicKey, privateKey);
     wallet.connectToNode(nodeInstance);
@@ -39,10 +45,12 @@ export const NodeContextProvider = ({ children }) => {
 
   const value = {
     node: nodeInstance,
+    initStates,
     wallets,
     addWallet,
     blocks,
     addBlock,
+    setBlocks,
     utxos,
     setUtxos,
     transactionPool,

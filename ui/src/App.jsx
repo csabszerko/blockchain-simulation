@@ -7,16 +7,24 @@ import Wallets from "../components/wallets/Wallets.jsx";
 import Transactions from "../components/transactions/Transactions.jsx";
 import NavBar from "../components/navbar/NavBar.jsx";
 import Blocks from "../components/Blocks/Blocks.jsx";
-import { DEFAULT_WALLETS } from "../../constants/defaultData.js";
 
 function App() {
   const nodeId = useRef(uuidv4()).current;
-  const { node } = useNodeContext();
+  const [syncing, setSyncing] = useState(true);
+  const { node, initStates } = useNodeContext();
   node.nodeId = nodeId;
 
   useEffect(() => {
-    node.broadcastNewConnectionSyncReq(nodeId, 2000);
-  });
+    (async () => {
+      await node.broadcastSyncRequest(nodeId, 2000);
+      initStates();
+      setSyncing(false);
+    })();
+  }, []);
+
+  if (syncing) {
+    return <div className="syncing">syncing with the network...</div>;
+  }
 
   return (
     <>

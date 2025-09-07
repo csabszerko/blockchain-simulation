@@ -50,10 +50,10 @@ class BlockchainNode extends Blockchain {
   handleMessages(message) {
     if (message.from === this.nodeId) return;
     switch (message.type) {
-      case "NEW_CONNECTION_SYN": // looking to connect
+      case "SYN": // looking to connect
         this.handleNewConnectionSyn(message);
         break;
-      case "NEW_CONNECTION_SYNACK": // body: blockchain object
+      case "SYNACK": // body: blockchain object
         this.handleNewConnectionSynAck(message);
         break;
       case "NEW_BLOCK":
@@ -70,7 +70,7 @@ class BlockchainNode extends Blockchain {
     this.channel.postMessage({
       from: this.nodeId,
       to: message.from,
-      type: "NEW_CONNECTION_SYNACK",
+      type: "SYNACK",
       body: {
         blocks: this._getBlocks(),
         transactionPool: this._getTransactionPool(),
@@ -78,13 +78,13 @@ class BlockchainNode extends Blockchain {
         difficulty: this._getDifficulty(),
       }, // needs to send blocks, utxos, pending transactions, difficulty, etc when syncing
     });
-    console.log("Gossip incoming: new connection sync request");
+    console.log("Gossip incoming: new sync request");
   }
 
   handleNewConnectionSynAck(message) {
     if (message.to === this.nodeId) {
       console.log(
-        "Gossip incoming: new connection request acknowledged, blockchain synced"
+        "Gossip incoming: sync request acknowledged, blockchain synced"
       );
     }
   }
@@ -114,21 +114,18 @@ class BlockchainNode extends Blockchain {
     }
   }
 
-  async broadcastNewConnectionSyncReq(nodeId, waitTimeMs) {
+  async broadcastSyncRequest(nodeId, waitTimeMs) {
     this.channel.postMessage({
       from: nodeId,
       to: null,
-      type: "NEW_CONNECTION_SYN",
+      type: "SYN",
       body: null,
     });
 
     console.log(
       `Message broadcasted: new connection sync request. Waiting for ${waitTimeMs} to collect responses`
     );
-    const nodes = await this.waitForMessages(
-      "NEW_CONNECTION_SYNACK",
-      waitTimeMs
-    );
+    const nodes = await this.waitForMessages("SYNACK", waitTimeMs);
 
     // filter out the invalid chains received
     const validNodes = nodes.filter((node) => {
@@ -159,10 +156,16 @@ class BlockchainNode extends Blockchain {
     this._setUtxos(nodeWithLongestChain.body.utxos);
     this._setTransactionPool(nodeWithLongestChain.body.transactionPool);
 
-    console.log("Collected sync responses:", nodes);
+    console.log(
+      "Collected sync responses:",
+      nodes,
+      "this response was chosen for sync",
+      nodeWithLongestChain
+    );
   }
 
   mineAndBroadcastBlock() {
+    const previousBlock = this._getBlocks().at(-1);
     const newBlock = this.mineBlock();
     this.channel.postMessage({
       from: this.nodeId,
@@ -170,6 +173,7 @@ class BlockchainNode extends Blockchain {
       type: "NEW_BLOCK",
       body: {
         block: newBlock,
+        previousBlock: previousBlock,
       }, // needs to send blocks, utxos, pending transactions, difficulty, etc when syncing
     });
     console.log(
