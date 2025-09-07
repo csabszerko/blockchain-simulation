@@ -19,7 +19,11 @@
 > - digital signatures with asymmetric encryption
 > - blockchain validation (signatures, hashes, replaying tx history for utxo validation)
 > - support for running as a terminal app (single node only)
-> - ui in react for single/multi node setup (in progress)
+> - ui in react for single/multi node setup
+> - gossip network communication through the BroadcastChannel API
+> - each browser tab instance of the UI acts as a node in the network
+> - cross-node chain syncing mechanism
+> - longest chain consensus rule
 > - ...
 
 > ## some intentional discrepancies for the sake of simplicity
@@ -33,6 +37,7 @@
 
 # todo
 
+- block proposal and transaction proposal through gossip
 - implement utxo selection strategy for transactions (currently its in order, could be largest-first)
 - merkle root in blocks
 - migrate temporary styling and components to shadcn (?)
