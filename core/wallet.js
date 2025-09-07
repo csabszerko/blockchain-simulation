@@ -11,7 +11,6 @@ class Wallet {
     this.publicKey = publicKey;
     this.#privateKey = privateKey;
     this.utxos = {};
-    this.balance = 0;
   }
 
   static initializeKeyPair() {
@@ -37,7 +36,6 @@ class Wallet {
       (accumulator, UTXO) => accumulator + Number(UTXO.amount),
       0
     );
-    this.balance = balance;
     return balance;
   }
 

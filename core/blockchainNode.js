@@ -1,6 +1,5 @@
 import { getBroadcastChannelInstance } from "../ui/utils/broadcastChannel";
 import Blockchain from "./blockchain";
-import EventEmitter from "events";
 
 class BlockchainNode extends Blockchain {
   constructor() {
@@ -12,6 +11,30 @@ class BlockchainNode extends Blockchain {
     this.peers = [];
 
     console.log("Blockchain node initialized");
+  }
+
+  waitForMessages(type, durationMs) {
+    return new Promise((resolve) => {
+      const collected = {};
+
+      const handler = (event) => {
+        const message = event.data;
+        if (
+          message.type === type &&
+          message.from !== this.nodeId &&
+          !(message.from in collected)
+        ) {
+          collected[message.from] = message;
+        }
+      };
+
+      this.channel.addEventListener("message", handler);
+
+      setTimeout(() => {
+        this.channel.removeEventListener("message", handler);
+        resolve(Object.values(collected));
+      }, durationMs);
+    });
   }
 
   // methods for handling different message types;
@@ -60,16 +83,8 @@ class BlockchainNode extends Blockchain {
 
   handleNewConnectionSynAck(message) {
     if (message.to === this.nodeId) {
-      const receivedBlockchain = Blockchain.fromObject(message.body);
-      if (receivedBlockchain.isBlockchainValid()) {
-        // set this classes blockchain data to receivedBlockchain's
-        this._setBlocks(message.body.blocks);
-        this._setDifficulty(message.body.difficulty);
-        this._setUtxos(message.body.utxos);
-        this._setTransactionPool(message.body.transactionPool);
-      }
       console.log(
-        "Gossip incoming:: new connection request acknowledged, blockchain synced"
+        "Gossip incoming: new connection request acknowledged, blockchain synced"
       );
     }
   }
@@ -99,6 +114,54 @@ class BlockchainNode extends Blockchain {
     }
   }
 
+  async broadcastNewConnectionSyncReq(nodeId, waitTimeMs) {
+    this.channel.postMessage({
+      from: nodeId,
+      to: null,
+      type: "NEW_CONNECTION_SYN",
+      body: null,
+    });
+
+    console.log(
+      `Message broadcasted: new connection sync request. Waiting for ${waitTimeMs} to collect responses`
+    );
+    const nodes = await this.waitForMessages(
+      "NEW_CONNECTION_SYNACK",
+      waitTimeMs
+    );
+
+    // filter out the invalid chains received
+    const validNodes = nodes.filter((node) => {
+      const reconstructedBlockchan = Blockchain.fromObject(node.body);
+      return reconstructedBlockchan.isBlockchainValid();
+    });
+
+    if (validNodes.length === 0) {
+      console.warn(
+        "Sync failed. No valid nodes received, initializing chain to defaults."
+      );
+      return;
+    }
+    // find the one with the longest blocks array that is still valid
+    const nodeWithLongestChain = validNodes.reduce(
+      (longestNode, currentNode) => {
+        if (!longestNode) return currentNode; // first element
+        return currentNode.body.blocks.length > longestNode.body.blocks.length
+          ? currentNode
+          : longestNode;
+      },
+      null
+    );
+
+    // set this classes blockchain data to receivedBlockchain's
+    this._setBlocks(nodeWithLongestChain.body.blocks);
+    this._setDifficulty(nodeWithLongestChain.body.difficulty);
+    this._setUtxos(nodeWithLongestChain.body.utxos);
+    this._setTransactionPool(nodeWithLongestChain.body.transactionPool);
+
+    console.log("Collected sync responses:", nodes);
+  }
+
   mineAndBroadcastBlock() {
     const newBlock = this.mineBlock();
     this.channel.postMessage({
@@ -114,7 +177,7 @@ class BlockchainNode extends Blockchain {
     );
   }
 
-  broadcastNewTransaction(transaction) {
+  addAndBroadcastTransaction(transaction) {
     this.addTransaction(transaction);
     this.channel.postMessage({
       from: this.nodeId,
