@@ -18,7 +18,7 @@ export const NodeContextProvider = ({ children }) => {
     wallet.connectToNode(nodeInstance);
   });
 
-  const initStates = () => {
+  const syncNodeUIStates = () => {
     setBlocks([...nodeInstance.blocks]);
     setUtxos(nodeInstance.utxos);
     setTransactionPool([...nodeInstance.transactionPool]);
@@ -45,7 +45,7 @@ export const NodeContextProvider = ({ children }) => {
 
   const value = {
     node: nodeInstance,
-    initStates,
+    syncNodeUIStates,
     wallets,
     addWallet,
     blocks,

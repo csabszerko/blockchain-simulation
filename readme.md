@@ -33,6 +33,7 @@
 > - mining includes all transactions in the mempool for the next block
 > - gossip networks consist of all other nodes instead of just a subset
 > - no headers-first syncing
+> - gossip networks assume their nodes are synced when validating block and transaction proposals
 > - ...
 
 # todo
@@ -46,4 +47,5 @@
 - miner rewards/gas fees ?
 - support for explicit transaction selection ?
 - try to break the system more -> rework error logging mechanism
+- rewrite to ts
 - ...

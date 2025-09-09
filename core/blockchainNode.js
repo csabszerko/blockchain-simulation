@@ -91,13 +91,25 @@ class BlockchainNode extends Blockchain {
 
   handleNewBlock(message) {
     const newBlock = message.body.block;
+    const previousBlock = message.body.previousBlock;
 
     const exists = this._getBlocks().some((b) => b.hash === newBlock.hash);
     if (exists) return;
 
-    if (this.isBlockValid(message.body.block, message.body.previousBlock)) {
-      // save block to own blockchain;
-      this._setBlocks([...this._getBlocks(), message.body.block]);
+    // compare block with chain's own set of utxos
+    if (this.isBlockValid(newBlock, previousBlock)) {
+      // save block to own blockchain
+      for (const transaction of newBlock.transactions) {
+        this.updateUtxosFromTransaction(transaction);
+        this._setTransactionPool(
+          this._getTransactionPool().filter(
+            // remove block's transactions from node's mempool
+            (tx) => tx.txid !== transaction.txid
+          )
+        );
+      }
+      // add block to chain
+      this._setBlocks([...this._getBlocks(), newBlock]);
     }
   }
 
@@ -110,7 +122,7 @@ class BlockchainNode extends Blockchain {
 
     if (this.isTransactionValid(tx)) {
       // save transaction to mempool
-      this._setTransactionPool([...this._getTransactionPool(), tx]);
+      this.addTransaction(tx);
     }
   }
 
@@ -123,7 +135,7 @@ class BlockchainNode extends Blockchain {
     });
 
     console.log(
-      `Message broadcasted: new connection sync request. Waiting for ${waitTimeMs} to collect responses`
+      `Message broadcasted: new connection sync request. Waiting for ${waitTimeMs}ms to collect responses`
     );
     const nodes = await this.waitForMessages("SYNACK", waitTimeMs);
 
@@ -176,9 +188,7 @@ class BlockchainNode extends Blockchain {
         previousBlock: previousBlock,
       }, // needs to send blocks, utxos, pending transactions, difficulty, etc when syncing
     });
-    console.log(
-      "Gossip incoming: new block proposal:" + JSON.stringify(newBlock)
-    );
+    console.log("Gossip sent: new block proposal:", newBlock);
   }
 
   addAndBroadcastTransaction(transaction) {
@@ -191,9 +201,7 @@ class BlockchainNode extends Blockchain {
         transaction: transaction,
       }, // needs to send blocks, utxos, pending transactions, difficulty, etc when syncing
     });
-    console.log(
-      "Gossip incoming: new transaction proposal:" + JSON.stringify(transaction)
-    );
+    console.log("Gossip sent: new transaction proposal:", transaction);
   }
 }
 

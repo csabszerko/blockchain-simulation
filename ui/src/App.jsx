@@ -11,13 +11,18 @@ import Blocks from "../components/Blocks/Blocks.jsx";
 function App() {
   const nodeId = useRef(uuidv4()).current;
   const [syncing, setSyncing] = useState(true);
-  const { node, initStates } = useNodeContext();
+  const { node, syncNodeUIStates } = useNodeContext();
   node.nodeId = nodeId;
 
   useEffect(() => {
+    node.channel.addEventListener("message", (e) => {
+      if (e.data.type === "NEW_BLOCK" || e.data.type === "NEW_TRANSACTION") {
+        syncNodeUIStates();
+      }
+    });
     (async () => {
-      await node.broadcastSyncRequest(nodeId, 2000);
-      initStates();
+      await node.broadcastSyncRequest(nodeId, 1000);
+      syncNodeUIStates();
       setSyncing(false);
     })();
   }, []);

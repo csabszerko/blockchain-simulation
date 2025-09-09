@@ -11,7 +11,7 @@ function NavBar({ nodeId }) {
       >
         connect new node
       </button>
-      <button onClick={() => location.reload()}>sync with other nodes</button>
+      <button onClick={() => location.reload()}>sync this node</button>
     </nav>
   );
 }
