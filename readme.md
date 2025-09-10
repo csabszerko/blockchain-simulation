@@ -33,7 +33,9 @@
 > - mining includes all transactions in the mempool for the next block
 > - gossip networks consist of all other nodes instead of just a subset
 > - no headers-first syncing
-> - gossip networks assume their nodes are synced when validating block and transaction proposals
+
+<!-- > - gossip networks assume their nodes are synced when validating block and transaction proposals -->
+
 > - ...
 
 # todo

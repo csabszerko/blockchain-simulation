@@ -170,10 +170,11 @@ class Blockchain {
       .toHex();
   }
 
-  getUtxosForPkey(publicKey) {
+  getUtxosForPkey(publicKey, includeReserved) {
     return Object.fromEntries(
       Object.entries(this.#utxos).filter(
-        ([, utxo]) => utxo.address === publicKey && !utxo.reserved
+        ([, utxo]) =>
+          utxo.address === publicKey && (includeReserved || !utxo.reserved)
       )
     );
   }

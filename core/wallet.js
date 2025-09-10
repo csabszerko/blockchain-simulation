@@ -25,13 +25,12 @@ class Wallet {
     this.#connectedNode = node;
   }
 
-  getWalletUtxos() {
-    this.utxos = this.#connectedNode.getUtxosForPkey(this.publicKey);
-    return this.utxos;
+  getWalletUtxos(includeReserved) {
+    return this.#connectedNode.getUtxosForPkey(this.publicKey, includeReserved);
   }
 
   calculateBalance() {
-    const utxos = this.getWalletUtxos();
+    const utxos = this.getWalletUtxos(true);
     const balance = Object.values(utxos).reduce(
       (accumulator, UTXO) => accumulator + Number(UTXO.amount),
       0
@@ -40,7 +39,7 @@ class Wallet {
   }
 
   createTransaction({ to, amount }) {
-    this.getWalletUtxos();
+    this.utxos = this.getWalletUtxos(false);
     // a transaction can have MULTIPLE recipients because of the UTXO system -> change the current implementation TODO
     let fundsToSpend = 0;
     const inputs = [];
