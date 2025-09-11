@@ -48,7 +48,6 @@ bc.mineBlock();
 
 // bc.mineBlock();
 
-console.log(JSON.stringify(bc.getBlocks(), null, 5));
 console.log("user1 balance: " + WALLET1.calculateBalance());
 console.log("user2 balance: " + WALLET2.calculateBalance());
 console.log("user3 balance: " + WALLET3.calculateBalance());
@@ -118,7 +117,7 @@ console.log("user3 balance: " + WALLET3.calculateBalance());
 
 // bc.blocks = tamperedBlocks;
 
-// bc.printBlocks();
+bc.printBlocks();
 
 console.log(
   bc.isBlockchainValid()

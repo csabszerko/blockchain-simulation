@@ -1,23 +1,34 @@
-import { getBroadcastChannelInstance } from "../ui/utils/broadcastChannel";
-import Blockchain from "./blockchain";
+import { getBroadcastChannelInstance } from "./broadcastChannel.js";
+import Blockchain from "./blockchain.js";
+import type Transaction from "./transaction.js";
+
+type MessageType = "SYN" | "SYNACK" | "NEW_BLOCK" | "NEW_TRANSACTION";
+type Message = {
+  from: string;
+  to?: string;
+  type: MessageType;
+  body: any;
+};
 
 class BlockchainNode extends Blockchain {
+  channel: BroadcastChannel;
+  nodeId: string | null;
   constructor() {
     super();
 
     this.channel = getBroadcastChannelInstance("gossip");
     this.channel.onmessage = (event) => this.handleMessages(event.data);
     this.nodeId = null;
-    this.peers = [];
 
     console.log("Blockchain node initialized");
   }
 
-  waitForMessages(type, durationMs) {
+  waitForMessages(type: MessageType, durationMs: number): Promise<Message[]> {
     return new Promise((resolve) => {
-      const collected = {};
+      const collected: Record<string, Message> = {};
 
-      const handler = (event) => {
+      // keep an eye on this Message type (event.data still correct?)
+      const handler = (event: MessageEvent<Message>) => {
         const message = event.data;
         if (
           message.type === type &&
@@ -37,63 +48,53 @@ class BlockchainNode extends Blockchain {
     });
   }
 
-  // methods for handling different message types;
-
-  // example message
-  // this.channel.postMessage({
-  //   from: this.nodeId,
-  //   to: null,
-  //   type: "NEW_CONNECTION_SYN",
-  //   body: null,
-  // });
-
-  handleMessages(message) {
+  handleMessages(message: Message) {
     if (message.from === this.nodeId) return;
-    switch (message.type) {
-      case "SYN": // looking to connect
-        this.handleNewConnectionSyn(message);
-        break;
-      case "SYNACK": // body: blockchain object
-        this.handleNewConnectionSynAck(message);
-        break;
-      case "NEW_BLOCK":
-        this.handleNewBlock(message);
-        break;
-      case "NEW_TRANSACTION":
-        this.handleNewTransaction(message);
-        break;
+
+    const handlers: Record<MessageType, (msg: Message) => void> = {
+      SYN: (msg) => this.handleNewConnectionSyn(msg),
+      SYNACK: (msg) => this.handleNewConnectionSynAck(msg),
+      NEW_BLOCK: (msg) => this.handleNewBlock(msg),
+      NEW_TRANSACTION: (msg) => this.handleNewTransaction(msg),
+    };
+
+    const handler = handlers[message.type];
+    if (handler) {
+      handler(message);
+    } else {
+      console.warn("Unhandled message type received:", message.type);
     }
   }
 
   // responses to message types
-  handleNewConnectionSyn(message) {
+  handleNewConnectionSyn(message: Message) {
     this.channel.postMessage({
       from: this.nodeId,
       to: message.from,
       type: "SYNACK",
       body: {
-        blocks: this._getBlocks(),
-        transactionPool: this._getTransactionPool(),
-        utxos: this._getUtxos(),
-        difficulty: this._getDifficulty(),
+        blocks: this.getBlocks(),
+        transactionPool: this.getTransactionPool(),
+        utxos: this.getUtxos(),
+        difficulty: this.getDifficulty(),
       }, // needs to send blocks, utxos, pending transactions, difficulty, etc when syncing
-    });
+    } as Message);
     console.log("Gossip incoming: new sync request");
   }
 
-  handleNewConnectionSynAck(message) {
+  handleNewConnectionSynAck(message: Message) {
     if (message.to === this.nodeId) {
       console.log(
-        "Gossip incoming: sync request acknowledged, blockchain synced"
+        "Gossip incoming: sync request acknowledged by peer, blockchain synced"
       );
     }
   }
 
-  handleNewBlock(message) {
+  handleNewBlock(message: Message) {
     const newBlock = message.body.block;
     const previousBlock = message.body.previousBlock;
 
-    const exists = this._getBlocks().some((b) => b.hash === newBlock.hash);
+    const exists = this.getBlocks().some((b) => b.hash === newBlock.hash);
     if (exists) return;
 
     // compare block with chain's own set of utxos
@@ -101,23 +102,23 @@ class BlockchainNode extends Blockchain {
       // save block to own blockchain
       for (const transaction of newBlock.transactions) {
         this.updateUtxosFromTransaction(transaction);
-        this._setTransactionPool(
-          this._getTransactionPool().filter(
+        this.setTransactionPool(
+          this.getTransactionPool().filter(
             // remove block's transactions from node's mempool
             (tx) => tx.txid !== transaction.txid
           )
         );
       }
       // add block to chain
-      this._setBlocks([...this._getBlocks(), newBlock]);
+      this.setBlocks([...this.getBlocks(), newBlock]);
     }
   }
 
-  handleNewTransaction(message) {
+  handleNewTransaction(message: Message) {
     const tx = message.body.transaction;
 
     // check if already in pool
-    const exists = this._getTransactionPool().some((t) => t.txid === tx.txid);
+    const exists = this.getTransactionPool().some((t) => t.txid === tx.txid);
     if (exists) return;
 
     if (this.isTransactionValid(tx)) {
@@ -126,13 +127,12 @@ class BlockchainNode extends Blockchain {
     }
   }
 
-  async broadcastSyncRequest(nodeId, waitTimeMs) {
+  async broadcastSyncRequest(nodeId: string, waitTimeMs: number) {
     this.channel.postMessage({
       from: nodeId,
-      to: null,
       type: "SYN",
       body: null,
-    });
+    } as Message);
 
     console.log(
       `Message broadcasted: new connection sync request. Waiting for ${waitTimeMs}ms to collect responses`
@@ -153,20 +153,18 @@ class BlockchainNode extends Blockchain {
     }
     // find the one with the longest blocks array that is still valid
     const nodeWithLongestChain = validNodes.reduce(
-      (longestNode, currentNode) => {
-        if (!longestNode) return currentNode; // first element
+      (longestNode: Message, currentNode: Message) => {
         return currentNode.body.blocks.length > longestNode.body.blocks.length
           ? currentNode
           : longestNode;
-      },
-      null
+      }
     );
 
     // set this classes blockchain data to receivedBlockchain's
-    this._setBlocks(nodeWithLongestChain.body.blocks);
-    this._setDifficulty(nodeWithLongestChain.body.difficulty);
-    this._setUtxos(nodeWithLongestChain.body.utxos);
-    this._setTransactionPool(nodeWithLongestChain.body.transactionPool);
+    this.setBlocks(nodeWithLongestChain.body.blocks);
+    this.setDifficulty(nodeWithLongestChain.body.difficulty);
+    this.setUtxos(nodeWithLongestChain.body.utxos);
+    this.setTransactionPool(nodeWithLongestChain.body.transactionPool);
 
     console.log(
       "Collected sync responses:",
@@ -177,21 +175,20 @@ class BlockchainNode extends Blockchain {
   }
 
   mineAndBroadcastBlock() {
-    const previousBlock = this._getBlocks().at(-1);
+    const previousBlock = this.getBlocks().at(-1);
     const newBlock = this.mineBlock();
     this.channel.postMessage({
       from: this.nodeId,
-      to: null,
       type: "NEW_BLOCK",
       body: {
         block: newBlock,
         previousBlock: previousBlock,
       }, // needs to send blocks, utxos, pending transactions, difficulty, etc when syncing
-    });
+    } as Message);
     console.log("Gossip sent: new block proposal:", newBlock);
   }
 
-  addAndBroadcastTransaction(transaction) {
+  addAndBroadcastTransaction(transaction: Transaction) {
     this.addTransaction(transaction);
     this.channel.postMessage({
       from: this.nodeId,

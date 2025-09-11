@@ -37,7 +37,7 @@ class Blockchain {
 
   // "protected" methods (these are technically still public in js)
 
-  getBlocks(): Block[] {
+  protected getBlocks(): Block[] {
     return this.blocks;
   }
   protected setBlocks(blocks: Block[]): void {
@@ -292,7 +292,7 @@ class Blockchain {
     return true;
   }
 
-  isBlockValid(block: Block, previousBlock: Block, targetUtxos: UTXOSet) {
+  isBlockValid(block: Block, previousBlock: Block, targetUtxos?: UTXOSet) {
     if (block.previousHash != previousBlock.hash)
       throw new Error(
         "Block invalid: block hashes are incorrectly linked on the blockchain"
