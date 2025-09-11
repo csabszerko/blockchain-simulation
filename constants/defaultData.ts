@@ -1,3 +1,4 @@
+import Transaction from "../core/transaction.js";
 import Wallet from "../core/wallet.js";
 
 export const WALLET1 = new Wallet(
@@ -22,8 +23,8 @@ export const DEFAULT_UTXOS = {
   "tx1:3": { address: WALLET3.publicKey, amount: 4, reserved: false },
 };
 
-export const DEFAULT_TRANSACTIONS = [
-  {
+export const DEFAULT_TRANSACTIONS: Transaction[] = [
+  new Transaction({
     txid: "tx1",
     inputs: [],
     outputs: [
@@ -44,5 +45,5 @@ export const DEFAULT_TRANSACTIONS = [
         amount: 4,
       },
     ],
-  },
+  }),
 ];

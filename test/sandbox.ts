@@ -1,13 +1,10 @@
 import Blockchain from "../core/blockchain.js";
-import Transaction from "../core/transaction.js";
-import Wallet from "../core/wallet.js";
 import {
   WALLET1,
   WALLET2,
   WALLET3,
   DEFAULT_WALLETS,
 } from "../constants/defaultData.js";
-import forge from "node-forge";
 
 // error message formatting
 // process.on("uncaughtException", (err) => {
@@ -51,7 +48,7 @@ bc.mineBlock();
 
 // bc.mineBlock();
 
-console.log(JSON.stringify(bc.blocks, null, 5));
+console.log(JSON.stringify(bc.getBlocks(), null, 5));
 console.log("user1 balance: " + WALLET1.calculateBalance());
 console.log("user2 balance: " + WALLET2.calculateBalance());
 console.log("user3 balance: " + WALLET3.calculateBalance());

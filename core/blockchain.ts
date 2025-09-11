@@ -1,84 +1,91 @@
+import forge from "node-forge";
+import { Buffer } from "buffer";
+import Block from "./block.js";
+import type Transaction from "./transaction.js";
+import type { UTXO, UTXOSet } from "./utxo.js";
 import {
   DEFAULT_TRANSACTIONS,
   DEFAULT_UTXOS,
 } from "../constants/defaultData.js";
-import Block from "./block.js";
-import forge from "node-forge";
-import { Buffer } from "buffer";
 
 class Blockchain {
-  #blocks;
-  #transactionPool;
-  #difficulty;
-  #utxos;
+  private blocks: Block[];
+  private transactionPool: Transaction[];
+  private difficulty: number;
+  private utxos: UTXOSet;
   constructor() {
-    this.#blocks = [];
-    this.#transactionPool = [];
-    this.#utxos = {};
-    this.#difficulty = 2;
+    this.blocks = [];
+    this.transactionPool = [];
+    this.utxos = {};
+    this.difficulty = 2;
     this.createGenesisBlock();
   }
 
-  static fromObject(data) {
+  static fromObject(data: {
+    blocks: Block[];
+    transactionPool: Transaction[];
+    utxos: UTXOSet;
+    difficulty: number;
+  }): Blockchain {
     const bc = new Blockchain();
-    bc._setBlocks(data.blocks);
-    bc._setTransactionPool(data.transactionPool);
-    bc._setUtxos(data.utxos);
-    bc._setDifficulty(data.difficulty);
+    bc.setBlocks(data.blocks);
+    bc.setTransactionPool(data.transactionPool);
+    bc.setUtxos(data.utxos);
+    bc.setDifficulty(data.difficulty);
     return bc;
   }
 
   // "protected" methods (these are technically still public in js)
 
-  _getBlocks() {
-    return this.#blocks;
+  getBlocks(): Block[] {
+    return this.blocks;
   }
-  _setBlocks(blocks) {
-    this.#blocks = blocks;
-  }
-
-  _getUtxos() {
-    return this.#utxos;
+  protected setBlocks(blocks: Block[]): void {
+    this.blocks = blocks;
   }
 
-  _setUtxos(utxos) {
-    this.#utxos = utxos;
+  protected getUtxos(): UTXOSet {
+    return this.utxos;
   }
 
-  _getDifficulty() {
-    return this.#difficulty;
+  protected setUtxos(utxos: UTXOSet): void {
+    this.utxos = utxos;
   }
 
-  _setDifficulty(difficulty) {
-    this.#difficulty = difficulty;
+  protected getDifficulty(): number {
+    return this.difficulty;
   }
 
-  _getTransactionPool() {
-    return this.#transactionPool;
+  protected setDifficulty(difficulty: number): void {
+    this.difficulty = difficulty;
   }
 
-  _setTransactionPool(transactionPool) {
-    this.#transactionPool = transactionPool;
+  protected getTransactionPool(): Transaction[] {
+    return this.transactionPool;
+  }
+
+  protected setTransactionPool(transactionPool: Transaction[]): void {
+    this.transactionPool = transactionPool;
   }
   // testing purposes only
-  set blocks(blocks) {
-    this.#blocks = blocks;
-  }
-  get blocks() {
-    return JSON.parse(JSON.stringify(this.#blocks)); // deep copy
-  }
+  // set blocks(blocks) {
+  //   this.#blocks = blocks;
+  // }
+  // get blocks() {
+  //   return JSON.parse(JSON.stringify(this.#blocks)); // deep copy
+  // }
 
-  get utxos() {
-    return JSON.parse(JSON.stringify(this.#utxos)); // deep copy
-  }
+  // get utxos() {
+  //   return JSON.parse(JSON.stringify(this.#utxos)); // deep copy
+  // }
 
-  get transactionPool() {
-    return JSON.parse(JSON.stringify(this.#transactionPool)); // deep copy
-  }
+  // get transactionPool() {
+  //   return JSON.parse(JSON.stringify(this.#transactionPool)); // deep copy
+  // }
 
-  set utxos(utxos) {
-    this.#utxos = utxos;
-  }
+  // set utxos(utxos) {
+  //   this.#utxos = utxos;
+  // }
   // testing purposes only
 
   createGenesisBlock() {
@@ -88,20 +95,20 @@ class Blockchain {
       structuredClone(DEFAULT_TRANSACTIONS),
       "no previous hash",
       "genesis hash",
-      "genesis nonce"
+      0
     );
 
-    this.#utxos = structuredClone(DEFAULT_UTXOS);
-    this.#blocks.push(genesisBlock);
+    this.utxos = structuredClone(DEFAULT_UTXOS);
+    this.blocks.push(genesisBlock);
     return genesisBlock;
   }
 
   mineBlock() {
-    const index = this.#blocks.length;
+    const index = this.blocks.length;
     const timestamp = Date.now();
     const transactions = []; // mined blocks include all valid pending transactions by default (unrealistic)
 
-    for (const transaction of this.#transactionPool) {
+    for (const transaction of this.transactionPool) {
       try {
         // only mine blocks with good transactions
         if (this.isTransactionValid(transaction)) {
@@ -113,7 +120,7 @@ class Blockchain {
       }
     }
 
-    const previousHash = index === 0 ? "0" : this.#blocks[index - 1].hash;
+    const previousHash = index === 0 ? "0" : this.blocks[index - 1]!.hash;
 
     const { hash, nonce } = this.calculateProofOfWork(
       index,
@@ -131,12 +138,17 @@ class Blockchain {
       nonce
     );
 
-    this.#blocks.push(newBlock);
-    this.#transactionPool = [];
+    this.blocks.push(newBlock);
+    this.transactionPool = [];
     return newBlock;
   }
 
-  calculateProofOfWork(index, timestamp, transactions, previousHash) {
+  calculateProofOfWork(
+    index: number,
+    timestamp: number,
+    transactions: Transaction[],
+    previousHash: string
+  ): { hash: string; nonce: number } {
     // proof of work
     let hash;
     let nonce = 0;
@@ -148,13 +160,19 @@ class Blockchain {
         previousHash,
         nonce
       );
-      if (hash.startsWith("0".repeat(this.#difficulty))) break;
+      if (hash.startsWith("0".repeat(this.difficulty))) break;
       nonce++;
     }
     return { hash, nonce };
   }
 
-  calculateHash(index, timestamp, transactions, previousHash, nonce) {
+  calculateHash(
+    index: number,
+    timestamp: number,
+    transactions: Transaction[],
+    previousHash: string,
+    nonce: number
+  ): string {
     return forge.md.sha256
       .create()
       .update(
@@ -170,17 +188,17 @@ class Blockchain {
       .toHex();
   }
 
-  getUtxosForPkey(publicKey, includeReserved) {
+  getUtxosForPkey(publicKey: string, includeReserved: boolean): UTXOSet {
     return Object.fromEntries(
-      Object.entries(this.#utxos).filter(
-        ([, utxo]) =>
+      Object.entries(this.utxos).filter(
+        ([, utxo]: [string, utxo: UTXO]) =>
           utxo.address === publicKey && (includeReserved || !utxo.reserved)
       )
-    );
+    ) as UTXOSet;
   }
 
-  updateUtxosFromTransaction(transaction, targetUtxos) {
-    targetUtxos ??= this.#utxos;
+  updateUtxosFromTransaction(transaction: Transaction, targetUtxos?: UTXOSet) {
+    targetUtxos ??= this.utxos;
     for (const input of transaction.inputs) {
       delete targetUtxos[input["txid:vout"]]; // delete the spent utxos
     }
@@ -195,20 +213,23 @@ class Blockchain {
     }
   }
 
-  addTransaction(transaction) {
+  addTransaction(transaction: Transaction): void {
     if (this.isTransactionValid(transaction)) {
-      if (this.#transactionPool.some((tx) => tx.txid === transaction.txid)) {
+      if (this.transactionPool.some((tx) => tx.txid === transaction.txid)) {
         throw new Error("Transaction invalid: already in mempool");
       }
       for (const input of transaction.inputs) {
-        this.#utxos[input["txid:vout"]].reserved = true; // delete the spent utxos
+        this.utxos[input["txid:vout"]]!.reserved = true; // delete the spent utxos
       }
-      this.#transactionPool.push(transaction);
+      this.transactionPool.push(transaction);
     }
   }
 
-  isTransactionValid(transaction, validationUtxos) {
-    validationUtxos ??= this.#utxos;
+  isTransactionValid(
+    transaction: Transaction,
+    validationUtxos?: UTXOSet
+  ): boolean {
+    validationUtxos ??= this.utxos;
 
     const txidHash = forge.md.sha256
       .create()
@@ -258,7 +279,7 @@ class Blockchain {
       if (
         !forge.pki.ed25519.verify({
           message: Buffer.from(transactionHash, "hex"),
-          signature: Buffer.from(input.signature, "hex"),
+          signature: Buffer.from(input.signature!, "hex"),
           publicKey: Buffer.from(referencedUtxo.address, "hex"),
         })
       ) {
@@ -271,13 +292,13 @@ class Blockchain {
     return true;
   }
 
-  isBlockValid(block, previousBlock, targetUtxos) {
+  isBlockValid(block: Block, previousBlock: Block, targetUtxos: UTXOSet) {
     if (block.previousHash != previousBlock.hash)
       throw new Error(
         "Block invalid: block hashes are incorrectly linked on the blockchain"
       );
 
-    if (!block.hash.startsWith("0".repeat(this.#difficulty)))
+    if (!block.hash.startsWith("0".repeat(this.difficulty)))
       throw new Error(
         "Block invalid: proof of work has not been computed correctly"
       );
@@ -294,7 +315,7 @@ class Blockchain {
     )
       throw new Error("Block invalid: block hashes are incorrect");
 
-    targetUtxos ??= this.#utxos;
+    targetUtxos ??= this.utxos;
     const validationUtxos = structuredClone(targetUtxos); // create a snapshotted version to validate against
 
     for (const transaction of block.transactions) {
@@ -312,9 +333,9 @@ class Blockchain {
   isBlockchainValid() {
     // replay transaction history
     const replayUtxos = structuredClone(DEFAULT_UTXOS);
-    for (let i = 1; i < this.#blocks.length; i++) {
-      const block = this.#blocks[i];
-      if (!this.isBlockValid(block, this.#blocks[i - 1], replayUtxos))
+    for (let i = 1; i < this.blocks.length; i++) {
+      const block = this.blocks[i];
+      if (!this.isBlockValid(block!, this.blocks[i - 1]!, replayUtxos))
         return false;
     }
     return true;
@@ -323,7 +344,7 @@ class Blockchain {
   printBlocks() {
     console.log(
       "Blocks on the original blockchain: \n" +
-        JSON.stringify(this.#blocks, null, 5)
+        JSON.stringify(this.blocks, null, 5)
     );
   }
 }

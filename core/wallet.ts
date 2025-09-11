@@ -1,19 +1,27 @@
-import Transaction from "./transaction.js";
 import forge from "node-forge";
 import { Buffer } from "buffer";
 import { toHex } from "./utils.js";
+import Transaction, {
+  type TransactionInput,
+  type TransactionOutput,
+} from "./transaction.js";
+import type Blockchain from "./blockchain.js";
+import type { UTXO, UTXOSet } from "./utxo.js";
 
 class Wallet {
-  #privateKey; // ES2020 syntax for private properties
-  #connectedNode;
+  public publicKey: string;
+  public utxos: UTXOSet;
+  private privateKey: string; // ES2020 syntax for private properties
+  private connectedNode: Blockchain | null;
 
-  constructor(publicKey, privateKey) {
-    this.publicKey = publicKey;
-    this.#privateKey = privateKey;
+  constructor(publicKey: string, privateKey: string) {
     this.utxos = {};
+    this.connectedNode = null;
+    this.publicKey = publicKey;
+    this.privateKey = privateKey;
   }
 
-  static initializeKeyPair() {
+  static initializeKeyPair(): { publicKey: string; privateKey: string } {
     const { publicKey, privateKey } = forge.pki.ed25519.generateKeyPair();
     return {
       publicKey: toHex(publicKey),
@@ -21,29 +29,38 @@ class Wallet {
     };
   }
 
-  connectToNode(node) {
-    this.#connectedNode = node;
+  connectToNode(node: Blockchain) {
+    this.connectedNode = node;
   }
 
-  getWalletUtxos(includeReserved) {
-    return this.#connectedNode.getUtxosForPkey(this.publicKey, includeReserved);
+  getWalletUtxos(includeReserved: boolean): UTXOSet {
+    if (!this.connectedNode) {
+      throw new Error("Wallet is not connected to any node");
+    }
+    return this.connectedNode.getUtxosForPkey(this.publicKey, includeReserved);
   }
 
-  calculateBalance() {
+  calculateBalance(): number {
     const utxos = this.getWalletUtxos(true);
     const balance = Object.values(utxos).reduce(
-      (accumulator, UTXO) => accumulator + Number(UTXO.amount),
+      (accumulator: number, UTXO: UTXO) => accumulator + UTXO.amount,
       0
     );
     return balance;
   }
 
-  createTransaction({ to, amount }) {
+  createTransaction({
+    to,
+    amount,
+  }: {
+    to: string;
+    amount: number;
+  }): Transaction {
     this.utxos = this.getWalletUtxos(false);
     // a transaction can have MULTIPLE recipients because of the UTXO system -> change the current implementation TODO
     let fundsToSpend = 0;
-    const inputs = [];
-    const outputs = [];
+    const inputs: TransactionInput[] = [];
+    const outputs: TransactionOutput[] = [];
 
     // collect enough UTXOs to cover the amount
     for (const [key, utxo] of Object.entries(this.utxos)) {
@@ -73,21 +90,28 @@ class Wallet {
       outputs: outputs,
     });
 
-    this.#signTransactionInputs(transaction);
+    this.signTransactionInputs(transaction);
     transaction.finalizeTxid();
     return transaction;
   }
 
-  #signTransactionInputs(transaction) {
+  private signTransactionInputs(transaction: Transaction): void {
     // at this point all of the signatures are blank in the inputs
-    const blankedSignatureInputs = transaction.inputs.map((input) => ({
-      ...input,
-      signature: null,
-    }));
+    const blankedSignatureInputs: TransactionInput[] = transaction.inputs.map(
+      (input) => ({
+        ...input,
+        signature: null,
+      })
+    );
 
     for (const input of transaction.inputs) {
       const utxoTxidVout = input["txid:vout"];
       const referencedUtxo = this.utxos[utxoTxidVout];
+
+      if (!referencedUtxo)
+        throw new Error(
+          "Failed to sign transaction: referenced UTXO could not be found in wallet's UTXO set"
+        );
 
       const transactionHash = forge.md.sha256
         .create()
@@ -107,7 +131,7 @@ class Wallet {
         forge.pki.ed25519.sign({
           // also accepts a forge ByteBuffer or Uint8Array
           message: Buffer.from(transactionHash, "hex"),
-          privateKey: Buffer.from(this.#privateKey, "hex"),
+          privateKey: Buffer.from(this.privateKey, "hex"),
         })
       );
 
@@ -115,8 +139,8 @@ class Wallet {
     }
   }
 
-  toString() {
-    return this.publicKey + this.#privateKey;
+  toString(): string {
+    return this.publicKey + this.privateKey;
   }
 }
 
