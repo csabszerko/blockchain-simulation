@@ -1,17 +1,27 @@
-import { useNodeContext } from "../../context/NodeContext";
+import { useNodeContext } from "../../context/NodeContext.js";
 import "./Transactions.css";
 
 function Transactions() {
   const { transactionPool, addTransaction, wallets } = useNodeContext();
 
-  function handleTransactionSubmit(event) {
+  function handleTransactionSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.currentTarget);
 
     const from = formData.get("from");
     const sender = wallets.find((wallet) => wallet.publicKey === from);
-    const to = formData.get("to");
-    const amount = formData.get("amount");
+    const to = formData.get("to") as string;
+    const amount = Number(formData.get("amount"));
+
+    if (!sender) {
+      console.error("No matching sender wallet");
+      return;
+    }
+
+    if (!to || isNaN(amount)) {
+      console.error("Invalid transaction data");
+      return;
+    }
 
     const tx = sender.createTransaction({ to, amount });
     addTransaction(tx);

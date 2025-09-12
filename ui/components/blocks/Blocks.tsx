@@ -1,13 +1,13 @@
-import { useNodeContext } from "../../context/NodeContext";
+import { useNodeContext } from "../../context/NodeContext.js";
 import "./Blocks.css";
 
-function Blocks({ wallets }) {
+function Blocks() {
   const { blocks, addBlock, utxos, node } = useNodeContext();
   return (
     <div>
       <h3> utxos on this node</h3>
       <pre>{JSON.stringify(utxos, null, 5)}</pre>
-      <h3>blockchain is {node.isBlockchainValid ? "valid" : "invalid"}</h3>
+      <h3>blockchain is {node.isBlockchainValid() ? "valid" : "invalid"}</h3>
       <button
         onClick={() => {
           addBlock();

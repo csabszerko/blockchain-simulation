@@ -1,32 +1,34 @@
-import Wallet from "../../../core/wallet";
+import Wallet from "../../../core/wallet.js";
 import { useEffect, useRef, useState } from "react";
 import "./Wallets.css";
-import { useNodeContext } from "../../context/NodeContext";
+import { useNodeContext } from "../../context/NodeContext.js";
 
 function Wallets() {
   const { wallets, addWallet, blocks } = useNodeContext();
 
-  const [walletBalances, setWalletBalances] = useState({});
+  const [walletBalances, setWalletBalances] = useState<Record<string, number>>(
+    {}
+  );
   const placeholderKeys = useRef(Wallet.initializeKeyPair());
 
   useEffect(() => {
-    const balances = {};
+    const balances: Record<string, number> = {};
     wallets.forEach((wallet) => {
       balances[wallet.publicKey] = wallet.calculateBalance();
     });
     setWalletBalances(balances);
   }, [blocks, wallets]);
 
-  function createWallet(event) {
+  function createWallet(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    const publicKey = formData.get("publicKey");
-    const privateKey = formData.get("privateKey");
+    const formData = new FormData(event.currentTarget);
+    const publicKey = formData.get("publicKey") as string;
+    const privateKey = formData.get("privateKey") as string;
 
     addWallet(publicKey, privateKey);
 
     placeholderKeys.current = Wallet.initializeKeyPair();
-    event.target.reset();
+    event.currentTarget.reset();
   }
 
   return (

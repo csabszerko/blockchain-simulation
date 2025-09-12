@@ -1,6 +1,6 @@
-import { useNodeContext } from "../../context/NodeContext";
+import { useNodeContext } from "../../context/NodeContext.js";
 import "./NavBar.css";
-function NavBar({ nodeId }) {
+function NavBar({ nodeId }: { nodeId: string}) {
   return (
     <nav>
       <h3>node connected as {nodeId}</h3>

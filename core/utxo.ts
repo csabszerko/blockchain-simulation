@@ -4,6 +4,4 @@ export type UTXO = {
   reserved: boolean;
 };
 
-export type UTXOSet = {
-  [key: string]: UTXO;
-};
+export type UTXOSet = Record<string, UTXO>;

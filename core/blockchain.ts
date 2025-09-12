@@ -9,10 +9,10 @@ import {
 } from "../constants/defaultData.js";
 
 class Blockchain {
-  private blocks: Block[];
-  private transactionPool: Transaction[];
-  private difficulty: number;
-  private utxos: UTXOSet;
+  protected blocks: Block[];
+  protected transactionPool: Transaction[];
+  protected difficulty: number;
+  protected utxos: UTXOSet;
   constructor() {
     this.blocks = [];
     this.transactionPool = [];
@@ -21,72 +21,18 @@ class Blockchain {
     this.createGenesisBlock();
   }
 
-  static fromObject(data: {
-    blocks: Block[];
-    transactionPool: Transaction[];
-    utxos: UTXOSet;
-    difficulty: number;
-  }): Blockchain {
+  static fromObject(data: Blockchain): Blockchain {
     const bc = new Blockchain();
-    bc.setBlocks(data.blocks);
-    bc.setTransactionPool(data.transactionPool);
-    bc.setUtxos(data.utxos);
-    bc.setDifficulty(data.difficulty);
+    // bc.setBlocks(data.blocks);
+    // bc.setTransactionPool(data.transactionPool);
+    // bc.setUtxos(data.utxos);
+    // bc.setDifficulty(data.difficulty);
+    bc.blocks = data.blocks;
+    bc.transactionPool = data.transactionPool;
+    bc.utxos = data.utxos;
+    bc.difficulty = data.difficulty;
     return bc;
   }
-
-  // "protected" methods (these are technically still public in js)
-
-  protected getBlocks(): Block[] {
-    return this.blocks;
-  }
-  protected setBlocks(blocks: Block[]): void {
-    this.blocks = blocks;
-  }
-
-  protected getUtxos(): UTXOSet {
-    return this.utxos;
-  }
-
-  protected setUtxos(utxos: UTXOSet): void {
-    this.utxos = utxos;
-  }
-
-  protected getDifficulty(): number {
-    return this.difficulty;
-  }
-
-  protected setDifficulty(difficulty: number): void {
-    this.difficulty = difficulty;
-  }
-
-  protected getTransactionPool(): Transaction[] {
-    return this.transactionPool;
-  }
-
-  protected setTransactionPool(transactionPool: Transaction[]): void {
-    this.transactionPool = transactionPool;
-  }
-  // testing purposes only
-  // set blocks(blocks) {
-  //   this.#blocks = blocks;
-  // }
-  // get blocks() {
-  //   return JSON.parse(JSON.stringify(this.#blocks)); // deep copy
-  // }
-
-  // get utxos() {
-  //   return JSON.parse(JSON.stringify(this.#utxos)); // deep copy
-  // }
-
-  // get transactionPool() {
-  //   return JSON.parse(JSON.stringify(this.#transactionPool)); // deep copy
-  // }
-
-  // set utxos(utxos) {
-  //   this.#utxos = utxos;
-  // }
-  // testing purposes only
 
   createGenesisBlock() {
     const genesisBlock = new Block(
