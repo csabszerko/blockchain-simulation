@@ -81,5 +81,9 @@ export const NodeContextProvider = ({
 };
 
 export const useNodeContext = () => {
-  return useContext(NodeContext);
+  const context = useContext(NodeContext);
+  if (!context) {
+    throw new Error("useNodeContext must be used within a NodeContextProvider");
+  }
+  return context;
 };
