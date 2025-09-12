@@ -1,4 +1,4 @@
-# blockchain simulation in javascript
+# blockchain simulation in ~~javascript~~ typescript
 
 > ## about
 >
@@ -6,8 +6,8 @@
 
 > ## status report
 >
-> implementation: <b style="color:orange"> in progress</b>  
-> documentation: <b style="color:orange"> in progress</b>
+> implementation: <b style="color:orange"> in progress, functional</b>  
+> documentation: <b style="color:orange"> todo</b>
 
 > ## features implemented
 >
@@ -20,10 +20,11 @@
 > - blockchain validation (signatures, hashes, replaying tx history for utxo validation)
 > - support for running as a terminal app (single node only)
 > - ui in react for single/multi node setup
+>   - each browser tab instance of the UI acts as a node in the network
 > - gossip network communication through the BroadcastChannel API
-> - each browser tab instance of the UI acts as a node in the network
-> - cross-node chain syncing mechanism
-> - longest chain consensus rule
+>   - cross-node chain syncing mechanism
+>   - block proposal and transaction proposal through gossip
+>   - longest chain consensus rule
 > - ...
 
 > ## some intentional discrepancies for the sake of simplicity
@@ -40,14 +41,10 @@
 
 # todo
 
-- block proposal and transaction proposal through gossip
 - implement utxo selection strategy for transactions (currently its in order, could be largest-first)
 - merkle root in blocks
 - migrate temporary styling and components to shadcn (?)
-- consensus rules
-- support for multinode blockchains
 - miner rewards/gas fees ?
-- support for explicit transaction selection ?
+- support for explicit transaction selection during block mining ?
 - try to break the system more -> rework error logging mechanism
-- rewrite to ts
 - ...

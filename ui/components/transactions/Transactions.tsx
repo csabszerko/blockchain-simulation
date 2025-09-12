@@ -2,14 +2,15 @@ import { useNodeContext } from "../../context/NodeContext.js";
 import "./Transactions.css";
 
 function Transactions() {
-  const { transactionPool, addTransaction, wallets } = useNodeContext();
+  const { transactionPool, addTransaction, connectedWallets } =
+    useNodeContext();
 
   function handleTransactionSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
 
     const from = formData.get("from");
-    const sender = wallets.find((wallet) => wallet.publicKey === from);
+    const sender = connectedWallets.find((wallet) => wallet.publicKey === from);
     const to = formData.get("to") as string;
     const amount = Number(formData.get("amount"));
 
@@ -27,7 +28,8 @@ function Transactions() {
     addTransaction(tx);
   }
 
-  if (!wallets || wallets.length === 0) return <h3>Transactions</h3>;
+  if (!connectedWallets || connectedWallets.length === 0)
+    return <h3>Transactions</h3>;
 
   return (
     <div>
@@ -35,7 +37,7 @@ function Transactions() {
       <form onSubmit={handleTransactionSubmit}>
         <label htmlFor="from">from</label>
         <select name="from" id="from">
-          {wallets.map((wallet) => (
+          {connectedWallets.map((wallet) => (
             <option key={wallet.publicKey} value={wallet.publicKey}>
               {wallet.publicKey}
             </option>
@@ -44,7 +46,7 @@ function Transactions() {
 
         <label htmlFor="to">to</label>
         <select name="to" id="to">
-          {wallets.map((wallet) => (
+          {connectedWallets.map((wallet) => (
             <option key={wallet.publicKey} value={wallet.publicKey}>
               {wallet.publicKey}
             </option>

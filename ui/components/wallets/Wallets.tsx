@@ -4,28 +4,28 @@ import "./Wallets.css";
 import { useNodeContext } from "../../context/NodeContext.js";
 
 function Wallets() {
-  const { wallets, addWallet, blocks } = useNodeContext();
+  const { createWallet, blocks, node, connectedWallets } = useNodeContext();
 
-  const [walletBalances, setWalletBalances] = useState<Record<string, number>>(
-    {}
-  );
+  const [walletBalancesMap, setWalletBalancesMap] = useState<
+    Record<string, number>
+  >({});
   const placeholderKeys = useRef(Wallet.initializeKeyPair());
 
   useEffect(() => {
-    const balances: Record<string, number> = {};
-    wallets.forEach((wallet) => {
-      balances[wallet.publicKey] = wallet.calculateBalance();
+    const balancesMap: Record<string, number> = {};
+    node.collectAllWalletAddressesOnChain().forEach((address) => {
+      balancesMap[address] = node.calculateBalanceForWallet(address);
     });
-    setWalletBalances(balances);
-  }, [blocks, wallets]);
+    setWalletBalancesMap(balancesMap);
+  }, [blocks, connectedWallets]);
 
-  function createWallet(event: React.FormEvent<HTMLFormElement>) {
+  function submitWalletHandler(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const publicKey = formData.get("publicKey") as string;
     const privateKey = formData.get("privateKey") as string;
 
-    addWallet(publicKey, privateKey);
+    createWallet(publicKey, privateKey);
 
     placeholderKeys.current = Wallet.initializeKeyPair();
     event.currentTarget.reset();
@@ -34,7 +34,7 @@ function Wallets() {
   return (
     <div>
       <h3>wallets</h3>
-      <form onSubmit={createWallet}>
+      <form onSubmit={submitWalletHandler}>
         <label htmlFor="publicKey">wallet public key</label>
         <input
           id="publicKey"
@@ -51,7 +51,7 @@ function Wallets() {
 
         <button type="submit">create wallet</button>
       </form>
-      <h3>wallets connected to node</h3>
+      <h3>wallet balances on chain</h3>
       <table>
         <thead>
           <tr>
@@ -60,11 +60,11 @@ function Wallets() {
           </tr>
         </thead>
         <tbody>
-          {wallets.length > 0 ? (
-            wallets.map((wallet) => (
-              <tr key={wallet.publicKey}>
-                <td>{wallet.publicKey}</td>
-                <td>{walletBalances[wallet.publicKey]}</td>
+          {Object.keys(walletBalancesMap).length > 0 ? (
+            Object.entries(walletBalancesMap).map(([address, balance]) => (
+              <tr key={address}>
+                <td>{address}</td>
+                <td>{balance}</td>
               </tr>
             ))
           ) : (

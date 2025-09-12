@@ -2,6 +2,8 @@ import { getBroadcastChannelInstance } from "./broadcastChannel.js";
 import Blockchain from "./blockchain.js";
 import type Transaction from "./transaction.js";
 import Wallet from "./wallet.js";
+import type { UTXO, UTXOSet } from "./utxo.js";
+import type Block from "./block.js";
 
 type MessageType = "SYN" | "SYNACK" | "NEW_BLOCK" | "NEW_TRANSACTION";
 type Message = {
@@ -24,17 +26,41 @@ class BlockchainNode extends Blockchain {
     console.log("Blockchain node initialized");
   }
 
-  // mainly for the UI to access
-  get _blocks() {
+  // UI to access
+  get _blocks(): Block[] {
     return JSON.parse(JSON.stringify(this.blocks)); // deep copy
   }
 
-  get _utxos() {
+  get _utxos(): UTXOSet {
     return JSON.parse(JSON.stringify(this.utxos)); // deep copy
   }
 
-  get _transactionPool() {
+  get _transactionPool(): Transaction[] {
     return JSON.parse(JSON.stringify(this.transactionPool)); // deep copy
+  }
+
+  collectAllWalletAddressesOnChain(): string[] {
+    const addresses = new Set<string>();
+
+    for (const block of this.blocks) {
+      for (const tx of block.transactions) {
+        for (const output of tx.outputs) {
+          addresses.add(output.address);
+        }
+      }
+    }
+
+    // convert Set to array
+    return [...addresses];
+  }
+
+  calculateBalanceForWallet(publicKey: string): number {
+    const utxos = this.getUtxosForPkey(publicKey, true);
+    const balance = Object.values(utxos).reduce(
+      (accumulator: number, UTXO: UTXO) => accumulator + UTXO.amount,
+      0
+    );
+    return balance;
   }
 
   waitForMessages(type: MessageType, durationMs: number): Promise<Message[]> {

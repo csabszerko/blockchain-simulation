@@ -9,8 +9,8 @@ import type { UTXO, UTXOSet } from "../../core/utxo.js";
 interface NodeContextType {
   node: BlockchainNode;
   syncNodeUIStates: () => void;
-  wallets: Wallet[];
-  addWallet: (publicKey: string, privateKey: string) => void;
+  connectedWallets: Wallet[];
+  createWallet: (publicKey: string, privateKey: string) => void;
   blocks: Block[];
   addBlock: () => void;
   setBlocks: React.Dispatch<React.SetStateAction<Block[]>>;
@@ -28,14 +28,16 @@ export const NodeContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [wallets, setWallets] = useState<Wallet[]>([...DEFAULT_WALLETS]);
+  const [connectedWallets, setConnectedWallets] = useState<Wallet[]>([
+    ...DEFAULT_WALLETS,
+  ]);
   const [blocks, setBlocks] = useState<Block[]>(nodeInstance._blocks);
   const [utxos, setUtxos] = useState<UTXOSet>(nodeInstance._utxos);
   const [transactionPool, setTransactionPool] = useState<Transaction[]>(
     nodeInstance._transactionPool
   );
 
-  wallets.forEach((wallet) => {
+  connectedWallets.forEach((wallet) => {
     wallet.connectToNode(nodeInstance);
   });
 
@@ -45,10 +47,10 @@ export const NodeContextProvider = ({
     setTransactionPool([...nodeInstance._transactionPool]);
   };
 
-  const addWallet = (publicKey: string, privateKey: string) => {
+  const createWallet = (publicKey: string, privateKey: string) => {
     const wallet = new Wallet(publicKey, privateKey);
     wallet.connectToNode(nodeInstance);
-    setWallets((prev) => [...prev, wallet]);
+    setConnectedWallets((prev) => [...prev, wallet]);
   };
 
   const addBlock = () => {
@@ -67,8 +69,8 @@ export const NodeContextProvider = ({
   const value = {
     node: nodeInstance,
     syncNodeUIStates,
-    wallets,
-    addWallet,
+    connectedWallets,
+    createWallet,
     blocks,
     addBlock,
     setBlocks,
