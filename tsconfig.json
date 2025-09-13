@@ -45,7 +45,7 @@
     // shadcn related
     "baseUrl": ".",
     "paths": {
-      "@/*": ["ui/src/*"]
+      "@/*": ["./ui/src/*"]
     }
   }
 }

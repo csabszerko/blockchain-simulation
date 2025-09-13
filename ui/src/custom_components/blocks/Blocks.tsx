@@ -1,4 +1,4 @@
-import { useNodeContext } from "../../context/NodeContext.js";
+import { useNodeContext } from "@/context/NodeContext.js";
 import "./Blocks.css";
 
 function Blocks() {

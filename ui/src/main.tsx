@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { NodeContextProvider } from "../context/NodeContext.js";
+import { NodeContextProvider } from "@/context/NodeContext.js";
 import App from "./App.js";
 import "./index.css";
 

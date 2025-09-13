@@ -8,10 +8,10 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   root: "ui/",
   plugins: [react(), tailwindcss(), tsconfigPaths()],
-  extensions: [".ts", ".tsx", ".js", ".jsx"],
+  // extensions: [".ts", ".tsx", ".js", ".jsx"],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "ui/src"),
+      "@": path.resolve(__dirname, "./ui/src"),
     },
   },
 });

@@ -30,11 +30,11 @@ export function ThemeProvider({
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
 
-  useEffect(() => {
-    if (!localStorage.getItem(storageKey)) {
-      localStorage.setItem(storageKey, defaultTheme);
-    }
-  }, []);
+  //   useEffect(() => {
+  //     if (!localStorage.getItem(storageKey)) {
+  //       localStorage.setItem(storageKey, defaultTheme);
+  //     }
+  //   }, []);
 
   useEffect(() => {
     const root = window.document.documentElement;

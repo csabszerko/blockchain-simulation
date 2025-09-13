@@ -1,12 +1,13 @@
-import { useNodeContext } from "../context/NodeContext.js";
+import { useNodeContext } from "@/context/NodeContext.js";
 import { v4 as uuidv4 } from "uuid";
 import { useState, useRef, useEffect } from "react";
 
 import "./App.css";
-import Wallets from "../components/wallets/Wallets.js";
-import Transactions from "../components/transactions/Transactions.js";
-import NavBar from "../components/navbar/NavBar.js";
-import Blocks from "../components/blocks/Blocks.js";
+import Wallets from "./custom_components/wallets/Wallets.js";
+import Transactions from "./custom_components/transactions/Transactions.js";
+import NavBar from "./custom_components/navbar/NavBar.js";
+import Blocks from "./custom_components/blocks/Blocks.js";
+import BlockCarousel from "./components/custom/BlockCarousel.js";
 
 function App() {
   const nodeId = useRef(uuidv4()).current;
@@ -15,7 +16,7 @@ function App() {
   node.nodeId = nodeId;
 
   useEffect(() => {
-    node.channel.addEventListener("message", (e) => {
+    node.channel.addEventListener("message", (e: MessageEvent) => {
       if (e.data.type === "NEW_BLOCK" || e.data.type === "NEW_TRANSACTION") {
         syncNodeUIStates();
       }
@@ -33,7 +34,8 @@ function App() {
 
   return (
     <>
-      <NavBar nodeId={nodeId}></NavBar>
+      <NavBar nodeId={nodeId} />
+      <BlockCarousel />
       <div className="grid">
         <Wallets />
         <Transactions />

@@ -17,15 +17,31 @@ export const WALLET3 = new Wallet(
 export const DEFAULT_WALLETS = [WALLET1, WALLET2, WALLET3];
 
 export const DEFAULT_UTXOS = {
-  "tx1:0": { address: WALLET1.publicKey, amount: 5, reserved: false },
-  "tx1:1": { address: WALLET1.publicKey, amount: 8, reserved: false },
-  "tx1:2": { address: WALLET2.publicKey, amount: 4, reserved: false },
-  "tx1:3": { address: WALLET3.publicKey, amount: 4, reserved: false },
+  "genesis tx hash:0": {
+    address: WALLET1.publicKey,
+    amount: 5,
+    reserved: false,
+  },
+  "genesis tx hash:1": {
+    address: WALLET1.publicKey,
+    amount: 8,
+    reserved: false,
+  },
+  "genesis tx hash:2": {
+    address: WALLET2.publicKey,
+    amount: 4,
+    reserved: false,
+  },
+  "genesis tx hash:3": {
+    address: WALLET3.publicKey,
+    amount: 4,
+    reserved: false,
+  },
 };
 
 export const DEFAULT_TRANSACTIONS: Transaction[] = [
   new Transaction({
-    txid: "tx1",
+    txid: "genesis tx hash",
     inputs: [],
     outputs: [
       {

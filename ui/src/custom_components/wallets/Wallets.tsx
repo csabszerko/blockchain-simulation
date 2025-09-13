@@ -1,7 +1,7 @@
-import Wallet from "../../../core/wallet.js";
+import Wallet from "core/wallet.js";
 import { useEffect, useRef, useState } from "react";
 import "./Wallets.css";
-import { useNodeContext } from "../../context/NodeContext.js";
+import { useNodeContext } from "@/context/NodeContext.js";
 
 function Wallets() {
   const { createWallet, blocks, node, connectedWallets } = useNodeContext();

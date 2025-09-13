@@ -1,10 +1,10 @@
 import { createContext, useContext, useState } from "react";
-import BlockchainNode from "../../core/blockchainNode.js";
-import { DEFAULT_WALLETS } from "../../constants/defaultData.js";
-import Wallet from "../../core/wallet.js";
-import type Block from "../../core/block.js";
-import type Transaction from "../../core/transaction.js";
-import type { UTXO, UTXOSet } from "../../core/utxo.js";
+import BlockchainNode from "core/blockchainNode.js";
+import { DEFAULT_WALLETS } from "constants/defaultData.js";
+import Wallet from "core/wallet.js";
+import type Block from "core/block.js";
+import type Transaction from "core/transaction.js";
+import type { UTXO, UTXOSet } from "core/utxo.js";
 
 interface NodeContextType {
   node: BlockchainNode;
