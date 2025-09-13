@@ -41,5 +41,11 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
+
+    // shadcn related
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["ui/src/*"]
+    }
   }
 }

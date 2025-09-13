@@ -3,10 +3,10 @@ import { v4 as uuidv4 } from "uuid";
 import { useState, useRef, useEffect } from "react";
 
 import "./App.css";
-import Wallets from "../components/wallets/Wallets.jsx";
-import Transactions from "../components/transactions/Transactions.jsx";
-import NavBar from "../components/navbar/NavBar.jsx";
-import Blocks from "../components/Blocks/Blocks.jsx";
+import Wallets from "../components/wallets/Wallets.js";
+import Transactions from "../components/transactions/Transactions.js";
+import NavBar from "../components/navbar/NavBar.js";
+import Blocks from "../components/blocks/Blocks.js";
 
 function App() {
   const nodeId = useRef(uuidv4()).current;

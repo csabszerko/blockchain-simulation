@@ -5,7 +5,7 @@ nav {
     width: 100%;
     margin: 0;
     /* border-bottom: 5px solid #1a1a1a; */
-    background-color: #202020;
+    /* background-color: #202020; */
     display: flex;
     justify-content:space-evenly;
     align-items:center;

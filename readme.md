@@ -41,6 +41,7 @@
 
 # todo
 
+- toggle auto syncing
 - implement utxo selection strategy for transactions (currently its in order, could be largest-first)
 - merkle root in blocks
 - migrate temporary styling and components to shadcn (?)
