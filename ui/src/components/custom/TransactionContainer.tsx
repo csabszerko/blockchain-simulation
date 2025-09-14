@@ -55,7 +55,7 @@ export default function TransactionContainer({
       className="border rounded-lg px-5 py-1"
     >
       <AccordionItem value={transaction.txid!}>
-        <AccordionTrigger className="w-full [&>svg]:hidden">
+        <AccordionTrigger className="w-full flex items-center gap-4 [&>svg]:hidden">
           <div className="w-2/5 truncate">
             {simplifiedTransaction?.fromValue || "genesis"}
           </div>

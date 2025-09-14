@@ -110,6 +110,12 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* to make sure the scroll area displays correctly in the sheet */
+[data-radix-scroll-area-viewport] > div {
+  display: block !important;
+  min-width: 100%;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

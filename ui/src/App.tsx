@@ -8,6 +8,7 @@ import Transactions from "./custom_components/transactions/Transactions.js";
 import Blocks from "./custom_components/blocks/Blocks.js";
 import BlockCarousel from "./components/custom/BlockCarousel.js";
 import NavBar from "./components/custom/NavBar.js";
+import MineBlockSheet from "./components/custom/MineBlockSheet.js";
 
 function App() {
   const nodeId = useRef(uuidv4()).current;
@@ -35,6 +36,7 @@ function App() {
   return (
     <>
       <NavBar nodeId={nodeId} />
+      <MineBlockSheet />
       <BlockCarousel />
       <div className="grid">
         <Wallets />
