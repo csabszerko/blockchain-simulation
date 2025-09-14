@@ -9,6 +9,7 @@ import Blocks from "./custom_components/blocks/Blocks.js";
 import BlockCarousel from "./components/custom/BlockCarousel.js";
 import NavBar from "./components/custom/NavBar.js";
 import MineBlockSheet from "./components/custom/MineBlockSheet.js";
+import ConnectCreateWallet from "./components/custom/ConnectCreateWallet.js";
 
 function App() {
   const nodeId = useRef(uuidv4()).current;
@@ -36,6 +37,8 @@ function App() {
   return (
     <>
       <NavBar nodeId={nodeId} />
+      <MineBlockSheet />
+      <ConnectCreateWallet />
       <BlockCarousel />
       <div className="grid">
         <Wallets />
