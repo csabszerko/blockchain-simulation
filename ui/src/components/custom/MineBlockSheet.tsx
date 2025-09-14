@@ -42,7 +42,7 @@ export default function MineBlockSheet() {
         )}
 
         <SheetFooter className="pt-0">
-          <SheetClose>
+          <SheetClose asChild>
             <Button className="w-full" type="submit" onClick={addBlock}>
               mine block
             </Button>
