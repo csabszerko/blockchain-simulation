@@ -52,7 +52,7 @@ export default function TransactionContainer({
     <Accordion
       type="single"
       collapsible
-      className="border rounded-lg px-5 py-1"
+      className="border rounded-lg px-2 lg:px-5 lg:py-1"
     >
       <AccordionItem value={transaction.txid!}>
         <AccordionTrigger className="w-full flex items-center gap-4 [&>svg]:hidden">
@@ -65,13 +65,13 @@ export default function TransactionContainer({
           <div className="w-2/5 truncate">{simplifiedTransaction?.toValue}</div>
         </AccordionTrigger>
         <AccordionContent>
-          <AccordionHeader className="truncate pb-5 text-muted-foreground text-sm">
+          <AccordionHeader className="truncate pb-2 lg:pb-5 text-muted-foreground text-sm">
             hash: {transaction.txid!}
           </AccordionHeader>
           <Accordion
             type="single"
             collapsible
-            className="rounded-md border p-2 space-y-1"
+            className="rounded-md border p-1 lg:p-2 space-y-1"
           >
             <TransactionInputsContainer inputs={transaction.inputs} />
             <TransactionOutputsContainer

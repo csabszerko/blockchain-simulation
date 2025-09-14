@@ -36,7 +36,6 @@ function App() {
   return (
     <>
       <NavBar nodeId={nodeId} />
-      <MineBlockSheet />
       <BlockCarousel />
       <div className="grid">
         <Wallets />
