@@ -26,28 +26,61 @@ import {
 import type Transaction from "core/transaction.js";
 import TransactionInputsContainer from "./TransactionInputsContainer.js";
 import TransactionOutputsContainer from "./TransactionOutputsContainer.js";
+import { useNodeContext } from "@/context/NodeContext.js";
+import { useEffect, useState } from "react";
+import { AccordionHeader } from "@radix-ui/react-accordion";
 
 export default function TransactionContainer({
   transaction,
 }: {
   transaction: Transaction;
 }) {
+  const { node } = useNodeContext();
+  const [simplifiedTransaction, setSimplifiedTransaction] = useState<{
+    fromValue: string | null;
+    toValue: string;
+    amountValue: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const data = node.getSimplifiedTransaction(transaction);
+    setSimplifiedTransaction(data);
+  }, []);
+
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-col text-left">
-        <CardTitle>transaction</CardTitle>
-        <CardDescription className="max-w-full">
-          <div className="truncate"> hash: {transaction.txid}</div>
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Accordion type="single" collapsible>
-          <TransactionInputsContainer inputs={transaction.inputs} />
-          <TransactionOutputsContainer
-            outputs={transaction.outputs}
-          ></TransactionOutputsContainer>
-        </Accordion>
-      </CardContent>
-    </Card>
+    <Accordion
+      type="single"
+      collapsible
+      className="border rounded-lg px-5 py-1"
+    >
+      <AccordionItem value={transaction.txid!}>
+        <AccordionTrigger className="w-full [&>svg]:hidden">
+          <div className="w-2/5 truncate">
+            {simplifiedTransaction?.fromValue || "genesis"}
+          </div>
+          <div>→</div>
+          <div className="text-center text-chart-4">
+            {simplifiedTransaction?.amountValue}
+          </div>
+          <div>→</div>
+          <div className="w-2/5 truncate">{simplifiedTransaction?.toValue}</div>
+        </AccordionTrigger>
+        <AccordionContent>
+          <AccordionHeader className="truncate pb-5 text-muted-foreground text-sm">
+            hash: {transaction.txid!}
+          </AccordionHeader>
+          <Accordion
+            type="single"
+            collapsible
+            className="rounded-md border p-2"
+          >
+            <TransactionInputsContainer inputs={transaction.inputs} />
+            <TransactionOutputsContainer
+              outputs={transaction.outputs}
+            ></TransactionOutputsContainer>
+          </Accordion>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }

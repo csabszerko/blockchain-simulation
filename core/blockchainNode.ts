@@ -13,6 +13,12 @@ type Message = {
   body: any;
 };
 
+type SimplifiedTransaction = {
+  from: string | null;
+  to: string;
+  amount: number;
+};
+
 class BlockchainNode extends Blockchain {
   channel: BroadcastChannel;
   nodeId: string | null;
@@ -37,6 +43,37 @@ class BlockchainNode extends Blockchain {
 
   get _transactionPool(): Transaction[] {
     return JSON.parse(JSON.stringify(this.transactionPool)); // deep copy
+  }
+
+  collectAllUtxosEverOnChain(): UTXOSet {
+    const allUtxos: UTXOSet = {};
+    for (const block of this.blocks) {
+      for (const tx of block.transactions) {
+        for (const [index, output] of tx.outputs.entries()) {
+          allUtxos[tx.txid + ":" + index] = {
+            address: output.address,
+            amount: output.amount,
+            reserved: false,
+          };
+        }
+      }
+    }
+    return allUtxos;
+  }
+
+  getSimplifiedTransaction(tx: Transaction) {
+    const allUtxosEver = this.collectAllUtxosEverOnChain();
+    return tx.inputs.length
+      ? {
+          fromValue: allUtxosEver[tx.inputs[0]!["txid:vout"]]!.address,
+          toValue: tx.outputs[0]!.address,
+          amountValue: tx.outputs[0]!.amount,
+        }
+      : {
+          fromValue: null,
+          toValue: tx.outputs[0]!.address,
+          amountValue: tx.outputs[0]!.amount,
+        };
   }
 
   collectAllWalletAddressesOnChain(): string[] {

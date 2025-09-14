@@ -160,6 +160,9 @@ class Blockchain {
   }
 
   addTransaction(transaction: Transaction): void {
+    if (!transaction.inputs.length)
+      throw new Error("Transaction invalid: no inputs");
+
     if (this.isTransactionValid(transaction)) {
       if (this.transactionPool.some((tx) => tx.txid === transaction.txid)) {
         throw new Error("Transaction invalid: already in mempool");

@@ -18,11 +18,14 @@ export default function BlockCard({ block }: { block: Block }) {
           <div>created at: {new Date(block.timestamp).toLocaleString()}</div>
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
-        {block.transactions.map((tx) => (
-          <TransactionContainer key={tx.txid} transaction={tx} />
-        ))}
-      </CardContent>
+      {block.transactions.length ? (
+        <CardContent className="space-y-2">
+          <div>transactions</div>
+          {block.transactions.map((tx) => (
+            <TransactionContainer key={tx.txid} transaction={tx} />
+          ))}
+        </CardContent>
+      ) : null}
     </Card>
   );
 }

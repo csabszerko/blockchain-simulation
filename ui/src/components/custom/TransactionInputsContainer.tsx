@@ -23,7 +23,7 @@ export default function TransactionInputsContainer({
 }) {
   return inputs.length > 0 ? (
     <AccordionItem value="inputs">
-      <AccordionTrigger>inputs</AccordionTrigger>
+      <AccordionTrigger className="p-1">inputs</AccordionTrigger>
       <AccordionContent>
         <Table className="table-fixed">
           <TableHeader>
@@ -35,7 +35,7 @@ export default function TransactionInputsContainer({
           </TableHeader>
           <TableBody>
             {inputs.map((input) => (
-              <TableRow>
+              <TableRow key={input["txid:vout"]}>
                 <TableCell>{input["txid:vout"].split(":")[0]}</TableCell>
                 <TableCell>{input["txid:vout"].split(":")[1]}</TableCell>
                 <TableCell className="truncate">{input.signature}</TableCell>
