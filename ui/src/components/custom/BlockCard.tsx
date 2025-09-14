@@ -7,32 +7,11 @@ import {
   CardTitle,
 } from "../ui/card.js";
 import TransactionContainer from "./TransactionContainer.js";
+import BlockHashCurve from "./BlockHashCurve.js";
 export default function BlockCard({ block }: { block: Block }) {
   return (
     <div className="relative">
-      {/* Decorative curve */}
-      {block.index > 0 ? (
-        <svg
-          className="absolute pointer-events-none -left-5 top-14 z-[-1] overflow-visible"
-          width="200"
-          height="100"
-        >
-          <defs>
-            <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="var(--muted-foreground)" />{" "}
-              {/* Tailwind red-400 */}
-              <stop offset="100%" stopColor="var(--color-primary)" />{" "}
-              {/* Tailwind blue-400 */}
-            </linearGradient>
-          </defs>
-          <path
-            d="M 2 0 C 23 0 2 21 23 21"
-            stroke="url(#lineGradient)"
-            strokeWidth="3px"
-            fill="none"
-          />
-        </svg>
-      ) : null}
+      {block.index > 0 ? <BlockHashCurve /> : null}
       <Card className="w-full text-left">
         <CardHeader className="flex flex-col">
           <CardTitle className="font-bold">
