@@ -32,7 +32,7 @@ export default function TransactionOutputsContainer({
   return outputs.length > 0 ? (
     <AccordionItem value="outputs">
       <AccordionTrigger className="p-1">outputs</AccordionTrigger>
-      <AccordionContent className="border-t">
+      <AccordionContent className="p-1">
         <Table className="table-fixed">
           <TableHeader>
             <TableRow>

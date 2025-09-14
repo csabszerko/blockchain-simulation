@@ -29,6 +29,7 @@ import TransactionOutputsContainer from "./TransactionOutputsContainer.js";
 import { useNodeContext } from "@/context/NodeContext.js";
 import { useEffect, useState } from "react";
 import { AccordionHeader } from "@radix-ui/react-accordion";
+import { Badge } from "@/components/ui/badge.js";
 
 export default function TransactionContainer({
   transaction,
@@ -59,9 +60,7 @@ export default function TransactionContainer({
             {simplifiedTransaction?.fromValue || "genesis"}
           </div>
           <div>→</div>
-          <div className="text-center text-chart-4">
-            {simplifiedTransaction?.amountValue}
-          </div>
+          <Badge variant="default">{simplifiedTransaction?.amountValue}</Badge>
           <div>→</div>
           <div className="w-2/5 truncate">{simplifiedTransaction?.toValue}</div>
         </AccordionTrigger>
@@ -72,7 +71,7 @@ export default function TransactionContainer({
           <Accordion
             type="single"
             collapsible
-            className="rounded-md border p-2"
+            className="rounded-md border p-2 space-y-1"
           >
             <TransactionInputsContainer inputs={transaction.inputs} />
             <TransactionOutputsContainer

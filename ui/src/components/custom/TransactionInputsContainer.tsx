@@ -22,9 +22,9 @@ export default function TransactionInputsContainer({
   inputs: TransactionInput[];
 }) {
   return inputs.length > 0 ? (
-    <AccordionItem value="inputs">
+    <AccordionItem value="inputs" className="pb-1">
       <AccordionTrigger className="p-1">inputs</AccordionTrigger>
-      <AccordionContent>
+      <AccordionContent className="p-1">
         <Table className="table-fixed">
           <TableHeader>
             <TableRow>

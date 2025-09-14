@@ -5,9 +5,9 @@ import { useState, useRef, useEffect } from "react";
 import "./App.css";
 import Wallets from "./custom_components/wallets/Wallets.js";
 import Transactions from "./custom_components/transactions/Transactions.js";
-import NavBar from "./custom_components/navbar/NavBar.js";
 import Blocks from "./custom_components/blocks/Blocks.js";
 import BlockCarousel from "./components/custom/BlockCarousel.js";
+import NavBar from "./components/custom/NavBar.js";
 
 function App() {
   const nodeId = useRef(uuidv4()).current;
