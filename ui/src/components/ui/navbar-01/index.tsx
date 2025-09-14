@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils.js";
 import { Badge } from "@/components/ui/badge.js";
 import { Switch } from "@/components/ui/switch.js";
+import ThemeToggle from "@/components/custom/ThemeToggle.js";
 
 // Simple logo component for the navbar
 const Logo = (props: React.SVGAttributes<SVGElement>) => {
@@ -240,6 +241,7 @@ export const Navbar01 = React.forwardRef<HTMLElement, Navbar01Props>(
             >
               sync with network
             </Button>
+            <ThemeToggle />
           </div>
         </div>
       </header>
