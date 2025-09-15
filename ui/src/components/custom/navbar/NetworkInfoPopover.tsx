@@ -5,7 +5,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover.js";
 import { Cog, Info } from "lucide-react";
-import ThemeToggle from "../misc/ThemeToggle.js";
+import ThemeToggle from "@/components/custom/misc/ThemeToggle.js";
 import { Badge } from "@/components/ui/badge.js";
 
 export function NetworkInfoPopover({ nodeId }: { nodeId: string }) {

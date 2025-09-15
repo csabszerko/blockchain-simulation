@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils.js";
 import MineBlockSheet from "@/components/custom/mine_block/MineBlockSheet.js";
 import ConnectCreateWalletDialog from "@/components/custom/connect_wallet/ConnectCreateWalletDialog.js";
 import AddTransactionDialog from "@/components/custom/add_transaction/AddTransactionDialog.js";
-import { NetworkInfoPopover } from "./networkInfoPopover.js";
+import { NetworkInfoPopover } from "./NetworkInfoPopover.js";
 import { Bitcoin, Github } from "lucide-react";
 
 export const Navbar01 = ({ nodeId }: { nodeId: string }) => {
