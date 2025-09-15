@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useState, useRef, useEffect } from "react";
 
 import "./App.css";
-import { Navbar01 } from "./components/custom/navbar/index.js";
+import { Navbar01 } from "./components/custom/navbar/Navbar01.js";
 import BlockViewer from "./components/custom/block_viewer/BlockViewer.js";
 import { toast, Toaster } from "sonner";
 import { useTheme } from "./components/theme-provider.js";

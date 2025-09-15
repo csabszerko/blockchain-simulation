@@ -24,10 +24,7 @@ export default function BlockCarousel() {
         <CarouselContent>
           {blocks.map((block) => (
             <CarouselItem
-              className={`sm-md:basis-1/1 md:max-w-1/2 lg:max-w-1/2 md:basis-1/${Math.min(
-                2,
-                blocks.length
-              )} lg:basis-1/${Math.min(3, blocks.length)}`}
+              className={"sm:basis-1/1 md:basis-1/2 lg:basis-1/3"}
               key={block.index}
             >
               <BlockCard block={block} />
