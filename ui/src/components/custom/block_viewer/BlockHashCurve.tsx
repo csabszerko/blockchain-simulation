@@ -1,7 +1,7 @@
 export default function BlockHashCurve() {
   return (
     <svg
-      className="absolute pointer-events-none -left-5 top-14 z-[-1] overflow-visible"
+      className="absolute pointer-events-none -left-5 top-16 z-[-1] overflow-visible"
       width="200"
       height="100"
     >
