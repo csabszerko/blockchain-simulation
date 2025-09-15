@@ -4,14 +4,19 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.js";
 
 export default function ThemeToggle() {
   const { setTheme, theme } = useTheme();
-
   return (
     <div className="flex items-center gap-2">
       <Tabs
-        defaultValue={theme === "light" ? "light" : "dark"}
+        defaultValue={
+          theme === "system"
+            ? window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light"
+            : theme
+        }
         onValueChange={(value) => setTheme(value as Theme)}
       >
-        <TabsList>
+        <TabsList tabIndex={undefined}>
           <TabsTrigger value="dark">
             <Moon />
           </TabsTrigger>
