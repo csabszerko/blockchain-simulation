@@ -33,7 +33,7 @@ export default function TransactionOutputsContainer({
           <TableBody>
             {outputs.map((output) => (
               <TableRow key={output.address + output.amount}>
-                <TableCell>{output.address}</TableCell>
+                <TableCell className="truncate">{output.address}</TableCell>
                 <TableCell className="!text-center">{output.amount}</TableCell>
               </TableRow>
             ))}

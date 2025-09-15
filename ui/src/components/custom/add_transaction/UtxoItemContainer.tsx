@@ -15,9 +15,11 @@ export default function UtxoItemContainer({
       key={txidVout}
       className={utxo.reserved ? "text-destructive italic" : ""}
     >
-      <TableCell>{txidVout.split(":")[0]}</TableCell>
-      <TableCell className="!text-center">{txidVout.split(":")[1]}</TableCell>
-      <TableCell className="!text-center">
+      <TableCell className="truncate">{txidVout.split(":")[0]}</TableCell>
+      <TableCell className="!text-center truncate">
+        {txidVout.split(":")[1]}
+      </TableCell>
+      <TableCell className="!text-center truncate">
         <Badge className={utxo.reserved ? "bg-destructive" : ""}>
           {utxo.amount}
         </Badge>

@@ -12,13 +12,13 @@ import UtxoItemContainer from "./UtxoItemContainer.js";
 export default function UtxoListContainer({ utxos }: { utxos: UTXOSet }) {
   return (
     <Table className="table-fixed w-full">
-      <TableHeader className="hidden md:table-header-group">
+      <TableHeader className="table-header-group">
         <TableRow>
-          <TableHead className="w-4/5 md:w-2/5 truncate">txid</TableHead>
-          <TableHead className="w-1/5 md:w-1/5 !text-left truncate">
+          <TableHead className="w-2/5 md:w-2/5 truncate">txid</TableHead>
+          <TableHead className="w-1/5 md:w-1/5 !text-center truncate">
             vout
           </TableHead>
-          <TableHead className="w-1/5 md:w-2/5 !text-center truncate">
+          <TableHead className="w-2/5 md:w-2/5 !text-center truncate">
             amount
           </TableHead>
         </TableRow>

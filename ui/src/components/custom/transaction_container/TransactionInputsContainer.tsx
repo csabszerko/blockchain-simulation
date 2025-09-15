@@ -34,8 +34,10 @@ export default function TransactionInputsContainer({
           <TableBody>
             {inputs.map((input) => (
               <TableRow key={input["txid:vout"]}>
-                <TableCell>{input["txid:vout"].split(":")[0]}</TableCell>
-                <TableCell className="!text-center">
+                <TableCell className="truncate">
+                  {input["txid:vout"].split(":")[0]}
+                </TableCell>
+                <TableCell className="!text-center truncate">
                   {input["txid:vout"].split(":")[1]}
                 </TableCell>
                 <TableCell className="truncate">{input.signature}</TableCell>
