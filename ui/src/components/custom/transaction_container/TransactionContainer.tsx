@@ -12,6 +12,7 @@ import { useNodeContext } from "@/context/NodeContext.js";
 import { useEffect, useState } from "react";
 import { AccordionHeader } from "@radix-ui/react-accordion";
 import { Badge } from "@/components/ui/badge.js";
+import { ArrowRight, MoveRight } from "lucide-react";
 
 export default function TransactionContainer({
   transaction,
@@ -41,9 +42,13 @@ export default function TransactionContainer({
           <div className="w-2/5 truncate">
             {simplifiedTransaction?.fromValue || "genesis"}
           </div>
-          <div>→</div>
+          <div>
+            <MoveRight />
+          </div>
           <Badge variant="default">{simplifiedTransaction?.amountValue}</Badge>
-          <div>→</div>
+          <div>
+            <MoveRight />
+          </div>
           <div className="w-2/5 truncate">{simplifiedTransaction?.toValue}</div>
         </AccordionTrigger>
         <AccordionContent>

@@ -6,6 +6,7 @@ import ThemeToggle from "@/components/custom/misc/ThemeToggle.js";
 import MineBlockSheet from "@/components/custom/mine_block/MineBlockSheet.js";
 import ConnectCreateWalletDialog from "@/components/custom/connect_wallet/ConnectCreateWalletDialog.js";
 import AddTransactionDialog from "@/components/custom/add_transaction/AddTransactionDialog.js";
+import { NetworkInfoPopover } from "./networkInfoPopover.js";
 
 export const Navbar01 = ({ nodeId }: { nodeId: string }) => {
   return (
@@ -14,11 +15,11 @@ export const Navbar01 = ({ nodeId }: { nodeId: string }) => {
         "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6 [&_*]:no-underline"
       )}
     >
-      <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-4">
+      <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between ">
         {/* Left side */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           {/* Main nav */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-1 hidden md:flex">
             <button
               onClick={(e) =>
                 window.open(
@@ -31,38 +32,21 @@ export const Navbar01 = ({ nodeId }: { nodeId: string }) => {
                 github.com/csabszerko
               </span>
             </button>
-            <MineBlockSheet />
-            <ConnectCreateWalletDialog />
-            <AddTransactionDialog />
           </div>
           {/* 
           <div className="absolute left-1/2 transform -translate-x-1/2">
-            <h1 className="text-xl font-extrabold">blockchain simulation</h1>
-            <Badge variant={"secondary"}>{nodeId}</Badge>
+          <h1 className="text-xl font-extrabold">blockchain simulation</h1>
+          <Badge variant={"secondary"}>{nodeId}</Badge>
           </div> */}
         </div>
         {/* Right side */}
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-            onClick={(e) => {
-              window.open(window.location.href);
-            }}
-          >
-            connect new node
-          </Button>
-          <Button
-            size="sm"
-            className="text-sm font-medium px-4 h-9 rounded-md shadow-sm"
-            onClick={(e) => {
-              location.reload();
-            }}
-          >
-            sync with network
-          </Button>
+        <div className="flex items-center gap-3 justify-center md:justify-end w-full">
+          <ConnectCreateWalletDialog />
+          <AddTransactionDialog />
+          <MineBlockSheet />
+          <span className="hidden sm:flex">
+            <NetworkInfoPopover nodeId={nodeId} />
+          </span>
         </div>
       </div>
     </header>

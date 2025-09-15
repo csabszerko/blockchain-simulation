@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input.js";
 import { useNodeContext } from "@/context/NodeContext.js";
 
 import WalletSelectorComboBox from "./WalletSelectorComboBox.js";
+import { ArrowDown, MoveDown } from "lucide-react";
 
 export default function TransactionForm({
   fromValue,
@@ -56,7 +57,9 @@ export default function TransactionForm({
             wallets={connectedWallets}
           />
         </div>
-        <div className="text-center select-none">↓</div>
+        <div className="flex justify-center select-none">
+          <MoveDown />
+        </div>
         <div className="text-center flex justify-center">
           <Input
             id="amount"
@@ -68,7 +71,9 @@ export default function TransactionForm({
             defaultValue={1}
           />
         </div>
-        <div className="text-center select-none">↓</div>
+        <div className="flex justify-center select-none">
+          <MoveDown />
+        </div>
         <div>
           <input type="hidden" name="to" value={toValue} />
           <WalletSelectorComboBox

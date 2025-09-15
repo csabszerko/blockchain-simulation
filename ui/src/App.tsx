@@ -3,40 +3,54 @@ import { v4 as uuidv4 } from "uuid";
 import { useState, useRef, useEffect } from "react";
 
 import "./App.css";
-import BlockCarousel from "./components/custom/block_viewer/BlockCarousel.js";
-import MineBlockSheet from "./components/custom/mine_block/MineBlockSheet.js";
-import ConnectCreateWalletDialog from "./components/custom/connect_wallet/ConnectCreateWalletDialog.js";
-import AddTransactionDialog from "./components/custom/add_transaction/AddTransactionDialog.js";
-import { Navbar01 } from "./components/ui/navbar-01/index.js";
+import { Navbar01 } from "./components/custom/navbar/index.js";
 import BlockViewer from "./components/custom/block_viewer/BlockViewer.js";
+import { toast, Toaster } from "sonner";
+import { useTheme } from "./components/theme-provider.js";
 
 function App() {
   const nodeId = useRef(uuidv4()).current;
   const [syncing, setSyncing] = useState(true);
   const { node, syncNodeUIStates } = useNodeContext();
+  const { theme } = useTheme();
   node.nodeId = nodeId;
 
   useEffect(() => {
-    node.channel.addEventListener("message", (e: MessageEvent) => {
+    const handler = (e: MessageEvent) => {
+      toast(`received message: ${e.data.type}`, {
+        description: `from ${e.data.from}`,
+      });
       if (e.data.type === "NEW_BLOCK" || e.data.type === "NEW_TRANSACTION") {
         syncNodeUIStates();
       }
-    });
+    };
+    node.channel.addEventListener("message", handler);
     (async () => {
       await node.broadcastSyncRequest(nodeId, 1000);
       syncNodeUIStates();
       setSyncing(false);
     })();
+    return () => {
+      node.channel.removeEventListener("message", handler);
+    };
   }, []);
-
-  if (syncing) {
-    return <div className="syncing">syncing with the network...</div>;
-  }
 
   return (
     <>
-      <Navbar01 nodeId={nodeId} />
-      <BlockViewer />
+      <Toaster
+        className="select-none"
+        position="top-center"
+        theme={theme}
+        duration={6000}
+      />
+      {syncing ? (
+        <div className="syncing">syncing with the network...</div>
+      ) : (
+        <>
+          <Navbar01 nodeId={nodeId} />
+          <BlockViewer />
+        </>
+      )}
     </>
   );
 }

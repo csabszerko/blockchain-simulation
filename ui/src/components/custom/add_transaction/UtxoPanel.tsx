@@ -1,5 +1,8 @@
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
-import { DialogHeader } from "../../ui/dialog.js";
+import {
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog.js";
 import { ScrollArea } from "../../ui/scroll-area.js";
 import UtxoListContainer from "./UtxoListContainer.js";
 import { useNodeContext } from "@/context/NodeContext.js";
@@ -15,7 +18,7 @@ export default function UtxoPanel({
       <DialogHeader className="pb-2">
         <DialogTitle>available utxos</DialogTitle>
         <DialogDescription>
-          wallet balance:{" "}
+          wallet balance:
           {connectedWallets
             .find((wallet) => wallet.publicKey === selectedWalletPublicKey)
             ?.calculateBalance()}{" "}

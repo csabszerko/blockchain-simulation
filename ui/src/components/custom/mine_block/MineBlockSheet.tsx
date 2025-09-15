@@ -12,13 +12,16 @@ import {
 import { ScrollArea } from "../../ui/scroll-area.js";
 import { useNodeContext } from "@/context/NodeContext.js";
 import TransactionContainer from "../transaction_container/TransactionContainer.js";
+import { Cuboid, Pickaxe } from "lucide-react";
 
 export default function MineBlockSheet() {
   const { transactionPool, addBlock } = useNodeContext();
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost">mine block</Button>
+        <Button variant="default">
+          mine block <Cuboid className="hidden sm:block" />
+        </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader className="pb-0">

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useNodeContext } from "@/context/NodeContext.js";
 import UtxoPanel from "./UtxoPanel.js";
 import TransactionForm from "./TransactionForm.js";
+import { Landmark } from "lucide-react";
 
 export default function AddTransactionDialog() {
   const { connectedWallets } = useNodeContext();
@@ -20,7 +21,10 @@ export default function AddTransactionDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost">add transaction</Button>
+        <Button variant="outline">
+          add transaction
+          <Landmark className="hidden sm:block" />
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px]">
         <div className="grid grid-cols-2 gap-6">

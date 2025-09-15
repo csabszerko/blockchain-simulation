@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label.js";
 import Wallet from "core/wallet.js";
 import { useRef } from "react";
 import { useNodeContext } from "@/context/NodeContext.js";
+import { WalletIcon } from "lucide-react";
 
 export default function ConnectCreateWalletDialog() {
   const { createWallet } = useNodeContext();
@@ -35,7 +36,10 @@ export default function ConnectCreateWalletDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost">connect wallet</Button>
+        <Button variant="outline">
+          connect wallet
+          <WalletIcon className="hidden sm:block" />
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={submitWalletHandler}>

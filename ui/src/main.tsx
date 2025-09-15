@@ -7,11 +7,11 @@ import "./index.css";
 import { ThemeProvider } from "@/components/theme-provider.js";
 
 createRoot(document.getElementById("root") as HTMLElement).render(
-  <StrictMode>
-    <NodeContextProvider>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <App />
-      </ThemeProvider>
-    </NodeContextProvider>
-  </StrictMode>
+  // <StrictMode>
+  <NodeContextProvider>
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <App />
+    </ThemeProvider>
+  </NodeContextProvider>
+  // </StrictMode>
 );
