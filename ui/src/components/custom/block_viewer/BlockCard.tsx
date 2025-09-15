@@ -5,8 +5,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../ui/card.js";
-import TransactionContainer from "./TransactionContainer.js";
+} from "../../ui/card.js";
+import TransactionContainer from "../transaction_container/TransactionContainer.js";
 import BlockHashCurve from "./BlockHashCurve.js";
 export default function BlockCard({ block }: { block: Block }) {
   return (

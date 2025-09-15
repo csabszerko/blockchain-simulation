@@ -3,13 +3,11 @@ import { v4 as uuidv4 } from "uuid";
 import { useState, useRef, useEffect } from "react";
 
 import "./App.css";
-import Wallets from "./custom_components/wallets/Wallets.js";
-import Transactions from "./custom_components/transactions/Transactions.js";
-import Blocks from "./custom_components/blocks/Blocks.js";
-import BlockCarousel from "./components/custom/BlockCarousel.js";
-import NavBar from "./components/custom/NavBar.js";
-import MineBlockSheet from "./components/custom/MineBlockSheet.js";
-import ConnectCreateWallet from "./components/custom/ConnectCreateWallet.js";
+import BlockCarousel from "./components/custom/block_viewer/BlockCarousel.js";
+import MineBlockSheet from "./components/custom/mine_block/MineBlockSheet.js";
+import ConnectCreateWalletDialog from "./components/custom/connect_wallet/ConnectCreateWalletDialog.js";
+import AddTransactionDialog from "./components/custom/add_transaction/AddTransactionDialog.js";
+import { Navbar01 } from "./components/ui/navbar-01/index.js";
 
 function App() {
   const nodeId = useRef(uuidv4()).current;
@@ -36,15 +34,11 @@ function App() {
 
   return (
     <>
-      <NavBar nodeId={nodeId} />
+      <Navbar01 nodeId={nodeId} />
       <MineBlockSheet />
-      <ConnectCreateWallet />
+      <ConnectCreateWalletDialog />
+      <AddTransactionDialog />
       <BlockCarousel />
-      <div className="grid">
-        <Wallets />
-        <Transactions />
-        <Blocks />
-      </div>
     </>
   );
 }

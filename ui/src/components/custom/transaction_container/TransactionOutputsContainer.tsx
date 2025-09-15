@@ -1,13 +1,4 @@
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card.js";
-
-import {
-  Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
@@ -16,7 +7,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -37,14 +27,14 @@ export default function TransactionOutputsContainer({
           <TableHeader>
             <TableRow>
               <TableHead className="w-4/6">address</TableHead>
-              <TableHead className="w-2/6">amount</TableHead>
+              <TableHead className="w-2/6 !text-center">amount</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {outputs.map((output) => (
               <TableRow key={output.address + output.amount}>
                 <TableCell>{output.address}</TableCell>
-                <TableCell>{output.amount}</TableCell>
+                <TableCell className="!text-center">{output.amount}</TableCell>
               </TableRow>
             ))}
           </TableBody>

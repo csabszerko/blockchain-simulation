@@ -9,9 +9,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet.js";
-import { ScrollArea } from "../ui/scroll-area.js";
+import { ScrollArea } from "../../ui/scroll-area.js";
 import { useNodeContext } from "@/context/NodeContext.js";
-import TransactionContainer from "./TransactionContainer.js";
+import TransactionContainer from "../transaction_container/TransactionContainer.js";
 
 export default function MineBlockSheet() {
   const { transactionPool, addBlock } = useNodeContext();

@@ -1,5 +1,4 @@
 import {
-  Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
@@ -8,7 +7,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -28,16 +26,18 @@ export default function TransactionInputsContainer({
         <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-2/6">txid</TableHead>
-              <TableHead className="w-1/6">vout</TableHead>
-              <TableHead className="w-3/6">signature</TableHead>
+              <TableHead className="w-2/5">txid</TableHead>
+              <TableHead className="w-1/5 !text-center">vout</TableHead>
+              <TableHead className="w-2/5">signature</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {inputs.map((input) => (
               <TableRow key={input["txid:vout"]}>
                 <TableCell>{input["txid:vout"].split(":")[0]}</TableCell>
-                <TableCell>{input["txid:vout"].split(":")[1]}</TableCell>
+                <TableCell className="!text-center">
+                  {input["txid:vout"].split(":")[1]}
+                </TableCell>
                 <TableCell className="truncate">{input.signature}</TableCell>
               </TableRow>
             ))}

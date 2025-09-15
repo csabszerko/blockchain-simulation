@@ -8,7 +8,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel.js";
 import BlockCard from "./BlockCard.js";
-import AutoHeight from "embla-carousel-auto-height";
 
 export default function BlockCarousel() {
   const { blocks } = useNodeContext();

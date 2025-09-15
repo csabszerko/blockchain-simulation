@@ -1,5 +1,6 @@
 import { useTheme } from "@/components/theme-provider.js";
-import { Switch } from "../ui/switch.js";
+import { Switch } from "../../ui/switch.js";
+import { Moon, Sun } from "lucide-react";
 
 export default function ThemeToggle() {
   const { setTheme, theme } = useTheme();
@@ -11,13 +12,13 @@ export default function ThemeToggle() {
 
   return (
     <div className="flex items-center gap-2">
-      <span>dark</span>
+      <Moon />
       <Switch
         id="themeToggle"
         defaultChecked={theme === "light"} // initialize based on current theme
         onCheckedChange={handleToggle}
       />
-      <span>light</span>
+      <Sun />
     </div>
   );
 }

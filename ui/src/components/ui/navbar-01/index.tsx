@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button.js";
 import { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils.js";
 import { Badge } from "@/components/ui/badge.js";
-import ThemeToggle from "@/components/custom/ThemeToggle.js";
+import ThemeToggle from "@/components/custom/misc/ThemeToggle.js";
 
 export const Navbar01 = ({ nodeId }: { nodeId: string }) => {
   return (

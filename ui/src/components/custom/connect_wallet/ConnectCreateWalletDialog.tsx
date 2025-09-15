@@ -4,7 +4,6 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -13,24 +12,13 @@ import { Input } from "@/components/ui/input.js";
 import { Label } from "@/components/ui/label.js";
 
 import Wallet from "core/wallet.js";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useNodeContext } from "@/context/NodeContext.js";
 
-export default function ConnectCreateWallet() {
-  const { createWallet, blocks, node, connectedWallets } = useNodeContext();
+export default function ConnectCreateWalletDialog() {
+  const { createWallet } = useNodeContext();
 
-  const [walletBalancesMap, setWalletBalancesMap] = useState<
-    Record<string, number>
-  >({});
   const placeholderKeys = useRef(Wallet.initializeKeyPair());
-
-  useEffect(() => {
-    const balancesMap: Record<string, number> = {};
-    node.collectAllWalletAddressesOnChain().forEach((address) => {
-      balancesMap[address] = node.calculateBalanceForWallet(address);
-    });
-    setWalletBalancesMap(balancesMap);
-  }, [blocks, connectedWallets]);
 
   function submitWalletHandler(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -64,6 +52,7 @@ export default function ConnectCreateWallet() {
                 id="publicKey"
                 name="publicKey"
                 defaultValue={placeholderKeys.current.publicKey}
+                required
               />
             </div>
             <div className="grid gap-4">
@@ -72,17 +61,20 @@ export default function ConnectCreateWallet() {
                 id="privateKey"
                 name="privateKey"
                 defaultValue={placeholderKeys.current.privateKey}
+                required
               />
             </div>
           </div>
-          <DialogFooter className="pt-6">
+          <div className="pt-2 flex flex-col space-y-2">
+            <Button type="submit" className="w-full">
+              add transaction
+            </Button>
             <DialogClose asChild>
-              <Button variant="outline">cancel</Button>
+              <Button variant="outline" className="w-full">
+                close
+              </Button>
             </DialogClose>
-            <DialogClose asChild>
-              <Button type="submit">connect</Button>
-            </DialogClose>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
