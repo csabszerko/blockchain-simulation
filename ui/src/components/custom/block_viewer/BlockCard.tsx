@@ -17,10 +17,11 @@ export default function BlockCard({ block }: { block: Block }) {
       {block.index > 0 ? <BlockHashCurve /> : null}
       <Card className="w-full text-left">
         <CardHeader className="flex flex-col">
-          <CardTitle className="font-bold"></CardTitle>
-          <div className="flex items-center gap-2">
-            block <Badge variant="outline">{block.index || "genesis"}</Badge>
-          </div>
+          <CardTitle className="font-bold">
+            <div className="flex items-center gap-2">
+              block <Badge variant="outline">{block.index || "genesis"}</Badge>
+            </div>
+          </CardTitle>
           <CardDescription className="max-w-full">
             <div className="truncate">hash: {block.hash}</div>
             <div className="truncate">
