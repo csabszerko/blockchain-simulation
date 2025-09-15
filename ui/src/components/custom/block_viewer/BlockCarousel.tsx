@@ -15,7 +15,7 @@ export default function BlockCarousel() {
   return (
     <>
       <Carousel
-        className="top-8 select-none mx-auto max-w-6/8"
+        className="select-none md:p-2"
         opts={{
           startIndex: blocks.length,
           skipSnaps: true,

@@ -18,7 +18,7 @@ export default function MineBlockSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline">mine block</Button>
+        <Button variant="ghost">mine block</Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader className="pb-0">

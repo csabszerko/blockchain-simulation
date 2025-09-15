@@ -3,6 +3,9 @@ import { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils.js";
 import { Badge } from "@/components/ui/badge.js";
 import ThemeToggle from "@/components/custom/misc/ThemeToggle.js";
+import MineBlockSheet from "@/components/custom/mine_block/MineBlockSheet.js";
+import ConnectCreateWalletDialog from "@/components/custom/connect_wallet/ConnectCreateWalletDialog.js";
+import AddTransactionDialog from "@/components/custom/add_transaction/AddTransactionDialog.js";
 
 export const Navbar01 = ({ nodeId }: { nodeId: string }) => {
   return (
@@ -28,12 +31,15 @@ export const Navbar01 = ({ nodeId }: { nodeId: string }) => {
                 github.com/csabszerko
               </span>
             </button>
+            <MineBlockSheet />
+            <ConnectCreateWalletDialog />
+            <AddTransactionDialog />
           </div>
-
+          {/* 
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <h1 className="text-xl font-extrabold">blockchain simulation</h1>
             <Badge variant={"secondary"}>{nodeId}</Badge>
-          </div>
+          </div> */}
         </div>
         {/* Right side */}
         <div className="flex items-center gap-3">

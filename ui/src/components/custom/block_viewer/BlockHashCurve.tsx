@@ -7,7 +7,7 @@ export default function BlockHashCurve() {
     >
       <defs>
         <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="var(--muted-foreground)" />
+          <stop offset="0%" stopColor="var(--color-secondary)" />
           <stop offset="100%" stopColor="var(--color-primary)" />
         </linearGradient>
       </defs>

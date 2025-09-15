@@ -20,7 +20,7 @@ export default function AddTransactionDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">add transaction</Button>
+        <Button variant="ghost">add transaction</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px]">
         <div className="grid grid-cols-2 gap-6">

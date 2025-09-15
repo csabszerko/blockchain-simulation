@@ -8,6 +8,7 @@ import MineBlockSheet from "./components/custom/mine_block/MineBlockSheet.js";
 import ConnectCreateWalletDialog from "./components/custom/connect_wallet/ConnectCreateWalletDialog.js";
 import AddTransactionDialog from "./components/custom/add_transaction/AddTransactionDialog.js";
 import { Navbar01 } from "./components/ui/navbar-01/index.js";
+import BlockViewer from "./components/custom/block_viewer/BlockViewer.js";
 
 function App() {
   const nodeId = useRef(uuidv4()).current;
@@ -35,10 +36,7 @@ function App() {
   return (
     <>
       <Navbar01 nodeId={nodeId} />
-      <MineBlockSheet />
-      <ConnectCreateWalletDialog />
-      <AddTransactionDialog />
-      <BlockCarousel />
+      <BlockViewer />
     </>
   );
 }

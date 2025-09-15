@@ -35,7 +35,7 @@ export default function ConnectCreateWalletDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">connect wallet</Button>
+        <Button variant="ghost">connect wallet</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={submitWalletHandler}>
@@ -67,7 +67,7 @@ export default function ConnectCreateWalletDialog() {
           </div>
           <div className="pt-2 flex flex-col space-y-2">
             <Button type="submit" className="w-full">
-              add transaction
+              connect wallet
             </Button>
             <DialogClose asChild>
               <Button variant="outline" className="w-full">

@@ -13,7 +13,7 @@ export default function UtxoItemContainer({
   return (
     <TableRow
       key={txidVout}
-      className={utxo.reserved ? "text-destructive italic" : ""}
+      className={utxo.reserved ? "text-destructive" : ""}
     >
       <TableCell className="truncate">{txidVout.split(":")[0]}</TableCell>
       <TableCell className="!text-center truncate">
